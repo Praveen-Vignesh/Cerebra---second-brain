@@ -77,7 +77,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 key={result.id}
                 className="flex items-start px-4 py-3 hover:bg-muted cursor-pointer transition-colors"
               >
-                <result.icon className="h-5 w-5 text-muted-foreground mr-3 mt-0.5 flex-shrink-0" />
+                <result.icon className="h-5 w-5 text-muted-foreground mr-3 mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-sm font-medium text-foreground truncate">

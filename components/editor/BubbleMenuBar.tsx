@@ -2,7 +2,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { type Editor } from '@tiptap/core'
+import { BubbleMenu, type Editor } from '@tiptap/core'
 import { Bold, Italic, Strikethrough, Code, Link, Highlighter } from 'lucide-react'
 
 
@@ -21,58 +21,58 @@ const COLORS = [
 ]
 
 
-function useBubblePosition(editor: Editor | null) {
-  const [style, setStyle] = useState<React.CSSProperties>({ display: 'none' })
+// function useBubblePosition(editor: Editor | null) {
+//   const [style, setStyle] = useState<React.CSSProperties>({ display: 'none' })
 
-  const update = useCallback(() => {
-    if (!editor) return
+//   const update = useCallback(() => {
+//     if (!editor) return
 
-    const { from, to } = editor.state.selection
-    const hasSelection = from !== to
-    const inCodeBlock = editor.isActive('codeBlock')
+//     const { from, to } = editor.state.selection
+//     const hasSelection = from !== to
+//     const inCodeBlock = editor.isActive('codeBlock')
 
-    if (!hasSelection || inCodeBlock) {
-      setStyle({ display: 'none' })
-      return
-    }
+//     if (!hasSelection || inCodeBlock) {
+//       setStyle({ display: 'none' })
+//       return
+//     }
 
-    const domSel = window.getSelection()
-    if (!domSel || domSel.rangeCount === 0) {
-      setStyle({ display: 'none' })
-      return
-    }
+//     const domSel = window.getSelection()
+//     if (!domSel || domSel.rangeCount === 0) {
+//       setStyle({ display: 'none' })
+//       return
+//     }
 
-    const rect = domSel.getRangeAt(0).getBoundingClientRect()
-    if (!rect.width) {
-      setStyle({ display: 'none' })
-      return
-    }
+//     const rect = domSel.getRangeAt(0).getBoundingClientRect()
+//     if (!rect.width) {
+//       setStyle({ display: 'none' })
+//       return
+//     }
 
-    setStyle({
-      display:   'flex',
-      position:  'fixed',
-      top:       rect.top - 88,              
-      left:      rect.left + rect.width / 2,
-      transform: 'translateX(-50%)',
-      zIndex:    50,
-    })
-  }, [editor])
+//     setStyle({
+//       display:   'flex',
+//       position:  'fixed',
+//       top:       rect.top - 88,              
+//       left:      rect.left + rect.width / 2,
+//       transform: 'translateX(-50%)',
+//       zIndex:    50,
+//     })
+//   }, [editor])
 
-  useEffect(() => {
-    if (!editor) return
-    editor.on('selectionUpdate', update)
-    editor.on('focus', update)
-    const onBlur = () => setTimeout(() => setStyle({ display: 'none' }), 150)
-    editor.on('blur', onBlur)
-    return () => {
-      editor.off('selectionUpdate', update)
-      editor.off('focus', update)
-      editor.off('blur', onBlur)
-    }
-  }, [editor, update])
+//   useEffect(() => {
+//     if (!editor) return
+//     editor.on('selectionUpdate', update)
+//     editor.on('focus', update)
+//     const onBlur = () => setTimeout(() => setStyle({ display: 'none' }), 150)
+//     editor.on('blur', onBlur)
+//     return () => {
+//       editor.off('selectionUpdate', update)
+//       editor.off('focus', update)
+//       editor.off('blur', onBlur)
+//     }
+//   }, [editor, update])
 
-  return style
-}
+//   return style
+// }
 
 
 type Props = { editor: Editor }
@@ -80,7 +80,7 @@ type Props = { editor: Editor }
 export default function BubbleMenuBar({ editor }: Props) {
   const [showLinkInput, setShowLinkInput] = useState(false)
   const [linkUrl, setLinkUrl]             = useState('')
-  const menuStyle                         = useBubblePosition(editor)
+  // const menuStyle                         = useBubblePosition(editor)
 
   const applyLink = () => {
     if (linkUrl) {

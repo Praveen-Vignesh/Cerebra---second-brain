@@ -39,6 +39,11 @@
     "react-dom": "19.2.4",
     "tippy.js": "^6.3.7"
   },
+  "overrides": {
+    "@emoji-mart/react": {
+      "react": "$react"
+    }
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
