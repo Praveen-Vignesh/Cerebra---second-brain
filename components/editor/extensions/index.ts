@@ -37,7 +37,7 @@ export const getExtensions = () => [
   TableHeader,
   TableCell,
   Link.configure({
-    openOnClick: false,
+    openOnClick: true,
     HTMLAttributes: { class: 'cerebra-link' },
   }),
   Highlight.configure({ multicolor: false }),

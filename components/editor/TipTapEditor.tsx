@@ -1,4 +1,3 @@
-// components/editor/TipTapEditor.tsx
 'use client'
 
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -7,9 +6,8 @@ import dynamic from 'next/dynamic'
 import BubbleMenuBar from './BubbleMenuBar'
 import { getExtensions } from './extensions'
 import 'tippy.js/dist/tippy.css'
-import './editor.css'   // styles below
+import './editor.css' 
 
-// Emoji picker — loaded lazily (it's heavy)
 const EmojiPicker = dynamic(
   () => import('@emoji-mart/react').then(m => m.default),
   { ssr: false }
@@ -40,7 +38,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
     immediatelyRender: false,  
   })
 
-  // Listen for slash command custom events
+
   useEffect(() => {
     const handleInsertImage = () => imageInputRef.current?.click()
     const handleInsertEmoji = () => setShowEmojiPicker(true)
@@ -62,7 +60,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
       editor.chain().focus().setImage({ src: reader.result as string }).run()
     }
     reader.readAsDataURL(file)
-    e.target.value = '' // reset so same file can be picked again
+    e.target.value = ''
   }
 
   const handleEmojiSelect = (emoji: { native: string }) => {
@@ -78,7 +76,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
 
       <EditorContent editor={editor} />
 
-      {/* Hidden file input for image uploads */}
+
       <input
         ref={imageInputRef}
         type="file"
@@ -87,7 +85,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
         onChange={handleImageUpload}
       />
 
-      {/* Emoji picker overlay */}
+
       {showEmojiPicker && (
         <div className="emoji-picker-overlay" onClick={() => setShowEmojiPicker(false)}>
           <div onClick={e => e.stopPropagation()}>
