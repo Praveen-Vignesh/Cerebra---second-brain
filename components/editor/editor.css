@@ -65,59 +65,7 @@
 }
 
 /* ── Slash Menu ─────────────────────────────────────── */
-.slash-menu {
-  background: #1a1a2e;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 4px;
-  min-width: 260px;
-  max-height: 320px;
-  overflow-y: auto;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-}
 
-.slash-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 8px 10px;
-  background: transparent;
-  border: none;
-  border-radius: 7px;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.1s ease;
-  color: white;
-}
-.slash-menu-item:hover,
-.slash-menu-item.active { background: rgba(139, 92, 246, 0.2); }
-
-.slash-menu-icon {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.07);
-  border-radius: 6px;
-  font-size: 13px;
-  font-family: monospace;
-  flex-shrink: 0;
-  color: rgba(255,255,255,0.7);
-}
-
-.slash-menu-title {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.9);
-}
-.slash-menu-desc {
-  display: block;
-  font-size: 12px;
-  color: rgba(255,255,255,0.4);
-}
 
 /* ── Editor content area ─────────────────────────────── */
 .cerebra-editor {

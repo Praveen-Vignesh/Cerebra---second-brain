@@ -1,18 +1,17 @@
 import StarterKit from "@tiptap/starter-kit"
 import Heading from "@tiptap/extension-heading"
-import { Table } from "@tiptap/extension-table"
-import TableRow from "@tiptap/extension-table-row"
-import TableHeader from "@tiptap/extension-table-header"
-import TableCell from "@tiptap/extension-table-cell"
 import Image from "@tiptap/extension-image"
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
 import Link from "@tiptap/extension-link"
 import Highlight from "@tiptap/extension-highlight"
 import Placeholder from "@tiptap/extension-placeholder"
 import { common, createLowlight } from "lowlight"
-import { TextStyle } from "@tiptap/extension-text-style"
-import Color from "@tiptap/extension-color"
 import { Details, DetailsContent, DetailsSummary } from '@tiptap/extension-details'
+import Typography from '@tiptap/extension-typography'
+import { TableKit } from '@tiptap/extension-table'
+import { ListKeymap, ListKit } from "@tiptap/extension-list"
+import { TextStyleKit } from '@tiptap/extension-text-style'
+import FloatingMenu from '@tiptap/extension-floating-menu'
 
 const lowlight = createLowlight(common)
 
@@ -42,11 +41,13 @@ export const getExtensions = () => [
   Highlight.configure({ multicolor: false }),
 
   Placeholder.configure({ placeholder: "Write something, or press '/' for commands…", }),
-  
-  Table.configure({ resizable: true }),
-  TableRow,
-  TableHeader,
-  TableCell,
+    
+  TableKit.configure({
+    table: { resizable: true, HTMLAttributes: { class: "cerebra-table" } },
+    tableHeader: { HTMLAttributes: { class: "cerebra-table-header" } },
+    tableRow: { HTMLAttributes: { class: "cerebra-table-row" } },
+    tableCell: { HTMLAttributes: { class: "cerebra-table-cell" } },
+  }),
 
   Details.configure({
     openClassName: "cerebra-details-isOpen",
@@ -56,6 +57,26 @@ export const getExtensions = () => [
   DetailsContent,
   DetailsSummary,
 
-  Color,
-  TextStyle,
+  TextStyleKit.configure({
+    fontSize: {
+      options: [
+        { value: "12px", label: "Small" },
+        { value: "16px", label: "Medium" },
+        { value: "20px", label: "Large" }
+      ]
+    },
+
+  }),
+
+  Typography.configure({
+    types: ['paragraph', 'heading'],
+    HTMLAttributes: { class: "cerebra-typography" },
+  }),
+
+  ListKeymap,
+  ListKit,
+
+  FloatingMenu,
+
+  Highlight.configure({ multicolor: true }),
 ]

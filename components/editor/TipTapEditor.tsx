@@ -2,6 +2,7 @@
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import { useEffect, useRef, useState } from 'react'
+
 import dynamic from 'next/dynamic'
 import BubbleMenuBar from './BubbleMenuBar'
 import { getExtensions } from './extensions'
