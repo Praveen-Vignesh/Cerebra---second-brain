@@ -1,16 +1,122 @@
-/* components/editor/editor.css */
+
+:root {
+  --bubble-bg: #ffffff;
+  --bubble-border: rgba(0, 0, 0, 0.1);
+  --bubble-text: rgba(0, 0, 0, 0.6);
+  --bubble-hover-bg: rgba(0, 0, 0, 0.05);
+  --bubble-active-bg: rgba(79, 70, 229, 0.12);
+  --bubble-active-text: #4f46e5;
+  --bubble-divider: rgba(0, 0, 0, 0.1);
+  --bubble-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.08);
+  --editor-text: #1a1a1a;
+  --editor-placeholder: rgba(0, 0, 0, 0.3);
+  --editor-code-bg: #f1f5f9;
+  --editor-code-border: rgba(0, 0, 0, 0.08);
+  --editor-table-border: rgba(0, 0, 0, 0.1);
+  --editor-table-header-bg: rgba(79, 70, 229, 0.07);
+  --editor-details-border: rgba(0, 0, 0, 0.1);
+  --editor-footer-border: rgba(0, 0, 0, 0.06);
+  --toggle-btn-bg: rgba(0, 0, 0, 0.04);
+  --toggle-btn-color: rgba(0, 0, 0, 0.45);
+  --toggle-btn-hover-bg: rgba(79, 70, 229, 0.1);
+  --toggle-btn-hover-color: #4f46e5;
+  --toggle-btn-border: rgba(0, 0, 0, 0.1);
+  --toggle-btn-hover-border: rgba(79, 70, 229, 0.4);
+}
+
+/* System-preference dark (mirrors globals.css media query) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bubble-bg: #1a1a2e;
+    --bubble-border: rgba(255, 255, 255, 0.1);
+    --bubble-text: rgba(255, 255, 255, 0.65);
+    --bubble-hover-bg: rgba(255, 255, 255, 0.1);
+    --bubble-active-bg: rgba(139, 92, 246, 0.3);
+    --bubble-active-text: #a78bfa;
+    --bubble-divider: rgba(255, 255, 255, 0.15);
+    --bubble-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --editor-text: rgba(255, 255, 255, 0.85);
+    --editor-placeholder: rgba(255, 255, 255, 0.25);
+    --editor-code-bg: #0d0d1a;
+    --editor-code-border: rgba(255, 255, 255, 0.08);
+    --editor-table-border: rgba(255, 255, 255, 0.1);
+    --editor-table-header-bg: rgba(139, 92, 246, 0.1);
+    --editor-details-border: rgba(255, 255, 255, 0.08);
+    --editor-footer-border: rgba(255, 255, 255, 0.06);
+    --toggle-btn-bg: rgba(255, 255, 255, 0.06);
+    --toggle-btn-color: rgba(255, 255, 255, 0.45);
+    --toggle-btn-hover-bg: rgba(139, 92, 246, 0.25);
+    --toggle-btn-hover-color: #a78bfa;
+    --toggle-btn-border: rgba(255, 255, 255, 0.1);
+    --toggle-btn-hover-border: rgba(139, 92, 246, 0.5);
+  }
+}
+
+/* Explicit light theme override (data-theme="light") */
+html[data-theme="light"] {
+  --bubble-bg: #ffffff;
+  --bubble-border: rgba(0, 0, 0, 0.1);
+  --bubble-text: rgba(0, 0, 0, 0.6);
+  --bubble-hover-bg: rgba(0, 0, 0, 0.05);
+  --bubble-active-bg: rgba(79, 70, 229, 0.12);
+  --bubble-active-text: #4f46e5;
+  --bubble-divider: rgba(0, 0, 0, 0.1);
+  --bubble-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.08);
+  --editor-text: #1a1a1a;
+  --editor-placeholder: rgba(0, 0, 0, 0.3);
+  --editor-code-bg: #f1f5f9;
+  --editor-code-border: rgba(0, 0, 0, 0.08);
+  --editor-table-border: rgba(0, 0, 0, 0.1);
+  --editor-table-header-bg: rgba(79, 70, 229, 0.07);
+  --editor-details-border: rgba(0, 0, 0, 0.1);
+  --editor-footer-border: rgba(0, 0, 0, 0.06);
+  --toggle-btn-bg: rgba(0, 0, 0, 0.04);
+  --toggle-btn-color: rgba(0, 0, 0, 0.45);
+  --toggle-btn-hover-bg: rgba(79, 70, 229, 0.1);
+  --toggle-btn-hover-color: #4f46e5;
+  --toggle-btn-border: rgba(0, 0, 0, 0.1);
+  --toggle-btn-hover-border: rgba(79, 70, 229, 0.4);
+}
+
+/* Explicit dark theme override (data-theme="dark") */
+html[data-theme="dark"] {
+  --bubble-bg: #1a1a2e;
+  --bubble-border: rgba(255, 255, 255, 0.1);
+  --bubble-text: rgba(255, 255, 255, 0.65);
+  --bubble-hover-bg: rgba(255, 255, 255, 0.1);
+  --bubble-active-bg: rgba(139, 92, 246, 0.3);
+  --bubble-active-text: #a78bfa;
+  --bubble-divider: rgba(255, 255, 255, 0.15);
+  --bubble-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --editor-text: rgba(255, 255, 255, 0.85);
+  --editor-placeholder: rgba(255, 255, 255, 0.25);
+  --editor-code-bg: #0d0d1a;
+  --editor-code-border: rgba(255, 255, 255, 0.08);
+  --editor-table-border: rgba(255, 255, 255, 0.1);
+  --editor-table-header-bg: rgba(139, 92, 246, 0.1);
+  --editor-details-border: rgba(255, 255, 255, 0.08);
+  --editor-footer-border: rgba(255, 255, 255, 0.06);
+  --toggle-btn-bg: rgba(255, 255, 255, 0.06);
+  --toggle-btn-color: rgba(255, 255, 255, 0.45);
+  --toggle-btn-hover-bg: rgba(139, 92, 246, 0.25);
+  --toggle-btn-hover-color: #a78bfa;
+  --toggle-btn-border: rgba(255, 255, 255, 0.1);
+  --toggle-btn-hover-border: rgba(139, 92, 246, 0.5);
+}
+
 
 /* ── BubbleMenu ─────────────────────────────────────── */
 .bubble-menu {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 4px 6px;
-  background: #1a1a2e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
+  padding: 5px 8px;
+  background: var(--bubble-bg);
+  border: 1px solid var(--bubble-border);
+  border-radius: 10px;
+  box-shadow: var(--bubble-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .bubble-menu button {
@@ -21,80 +127,154 @@
   height: 28px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  border-radius: 5px;
+  color: var(--bubble-text);
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.13s ease, color 0.13s ease;
 }
 
-.bubble-menu button:hover { background: rgba(255,255,255,0.1); color: white; }
-.bubble-menu button.active { background: rgba(139, 92, 246, 0.3); color: #a78bfa; }
+.bubble-menu button:hover {
+  background: var(--bubble-hover-bg);
+  color: var(--foreground);
+}
+
+.bubble-menu button.active {
+  background: var(--bubble-active-bg);
+  color: var(--bubble-active-text);
+}
 
 .bubble-divider {
   width: 1px;
   height: 18px;
-  background: rgba(255,255,255,0.15);
-  margin: 0 2px;
+  background: var(--bubble-divider);
+  margin: 0 3px;
+  flex-shrink: 0;
+  border-radius: 1px;
 }
 
-.bubble-link-input {
+/* ── Highlight Color Swatches ───────────────────────── */
+.bubble-colors {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 4px;
+  gap: 4px;
+  padding: 0 2px;
 }
-.bubble-link-input input {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 5px;
-  padding: 4px 8px;
-  color: white;
-  font-size: 13px;
-  width: 200px;
-  outline: none;
-}
-.bubble-link-input button {
-  padding: 4px 10px;
-  background: #7c3aed;
-  color: white;
-  border: none;
-  border-radius: 5px;
+
+.color-swatch {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  /* Transparent border as spacing for the outline ring */
+  border: 2px solid transparent;
   cursor: pointer;
-  font-size: 12px;
-  white-space: nowrap;
+  padding: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  flex-shrink: 0;
+  /* Clip background to padding-box so border stays transparent */
+  background-clip: padding-box;
 }
 
-/* ── Slash Menu ─────────────────────────────────────── */
+.color-swatch:hover {
+  transform: scale(1.25);
+}
+
+.color-swatch--active {
+  transform: scale(1.15) !important;
+  /* Multi-layer ring: inner ring matches bubble-bg, outer ring is white/dark */
+  box-shadow:
+    0 0 0 1.5px var(--bubble-bg),
+    0 0 0 3px var(--foreground);
+}
+
+/* Clear-highlight button (small ✕) */
+.color-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--bubble-hover-bg) !important;
+  color: var(--bubble-text);
+  border: 1.5px solid var(--bubble-border) !important;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  flex-shrink: 0;
+}
+
+.color-clear:hover {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+}
 
 
-/* ── Editor content area ─────────────────────────────── */
+/* ── Editor wrapper & content area ──────────────────── */
+.cerebra-editor-wrapper {
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
 .cerebra-editor {
+  flex: 1;
   min-height: 400px;
   padding: 24px 32px;
   outline: none;
   font-size: 15px;
   line-height: 1.7;
-  color: rgba(255,255,255,0.85);
+  color: var(--editor-text);
+  transition: color 0.2s ease;
 }
 
 /* Placeholder */
 .cerebra-editor p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
-  color: rgba(255,255,255,0.25);
+  color: var(--editor-placeholder);
   pointer-events: none;
   float: left;
   height: 0;
 }
 
+/* Headings */
+.cerebra-editor h1,
+.cerebra-editor h2,
+.cerebra-editor h3,
+.cerebra-editor h4,
+.cerebra-editor h5,
+.cerebra-editor h6 {
+  color: var(--foreground);
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 1.4em 0 0.4em;
+}
+
+.cerebra-editor h1 { font-size: 2em; }
+.cerebra-editor h2 { font-size: 1.5em; }
+.cerebra-editor h3 { font-size: 1.25em; }
+
+/* Links */
+.cerebra-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* Code blocks */
 .cerebra-code-block {
-  background: #0d0d1a;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--editor-code-bg);
+  border: 1px solid var(--editor-code-border);
   border-radius: 8px;
   padding: 16px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 13px;
   overflow-x: auto;
+  transition: background 0.2s ease;
 }
 
 /* Tables */
@@ -103,21 +283,31 @@
   width: 100%;
   margin: 16px 0;
 }
-.cerebra-editor th, .cerebra-editor td {
-  border: 1px solid rgba(255,255,255,0.1);
+
+.cerebra-editor th,
+.cerebra-editor td {
+  border: 1px solid var(--editor-table-border);
   padding: 8px 12px;
   text-align: left;
 }
-.cerebra-editor th { background: rgba(139, 92, 246, 0.1); font-weight: 600; }
 
-/* Details */
+.cerebra-editor th {
+  background: var(--editor-table-header-bg);
+  font-weight: 600;
+}
+
+/* Details / Summary */
 .cerebra-editor details {
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--editor-details-border);
   border-radius: 8px;
   padding: 12px 16px;
   margin: 8px 0;
 }
-.cerebra-editor summary { cursor: pointer; font-weight: 500; }
+
+.cerebra-editor summary {
+  cursor: pointer;
+  font-weight: 500;
+}
 
 /* Images */
 .cerebra-image {
@@ -126,7 +316,44 @@
   margin: 8px 0;
 }
 
-/* Emoji picker overlay */
+
+/* ── Editor Footer (theme toggle bar) ───────────────── */
+.editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 14px;
+  border-top: 1px solid var(--editor-footer-border);
+  background: var(--background);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  background: var(--toggle-btn-bg);
+  color: var(--toggle-btn-color);
+  border: 1px solid var(--toggle-btn-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--toggle-btn-hover-bg);
+  color: var(--toggle-btn-hover-color);
+  border-color: var(--toggle-btn-hover-border);
+}
+
+
+/* ── Emoji picker overlay ─────────────────────────────── */
 .emoji-picker-overlay {
   position: fixed;
   inset: 0;
@@ -134,73 +361,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 
-/* Tippy theme for slash menu */
+/* ── Tippy theme for slash menu ─────────────────────── */
 .tippy-box[data-theme~='cerebra-slash'] {
   background: transparent;
   border: none;
   box-shadow: none;
   padding: 0;
 }
+
 .tippy-box[data-theme~='cerebra-slash'] .tippy-content {
   padding: 0;
 }
-/* Wrap both rows */
-.bubble-menu-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+
+
+.ProseMirror {
+  color: var(--text-color); /* Inherits naturally based on the active theme */
 }
 
-.bubble-menu-row2 {
-  gap: 6px;
-  padding: 5px 8px;
-}
-
-.bubble-select {
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 5px;
-  color: rgba(255,255,255,0.8);
-  font-size: 12px;
-  padding: 3px 6px;
-  cursor: pointer;
-  outline: none;
-}
-.bubble-select:hover {
-  border-color: rgba(139,92,246,0.5);
-}
-.bubble-select option {
-  background: #1a1a2e;
-}
-
-.bubble-colors {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.color-swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
-  cursor: pointer;
-  padding: 0;
-  transition: transform 0.1s ease, border-color 0.1s ease;
-}
-.color-swatch:hover {
-  transform: scale(1.2);
-  border-color: white;
-}
-.color-reset {
-  background: transparent !important;
-  color: rgba(255,255,255,0.4);
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
+/* 3. The Magic: Contextual highlight styling */
+.ProseMirror mark {
+  background-color: #ffcc00; /* Your bright highlight color */
+  color: #000000 !important; /* Force text to black strictly inside the highlight */
 }

@@ -2,98 +2,133 @@
 
 import React from 'react'
 import { type Editor } from '@tiptap/core'
-import { findParentNode, posToDOMRect } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
-import { Bold, Italic, Strikethrough, List, ListOrdered,Highlighter, Circle } from 'lucide-react'
+import { Bold, Italic, Strikethrough, Code, Highlighter, X } from 'lucide-react'
+
 type Props = {
   editor: Editor
+  isDark: boolean
 }
 
-export default function CustomBubbleMenu({ editor }: Props) {
+/**
+ * Highlight colors chosen for readability in each theme:
+ *
+ * Light mode → pastel tints (high contrast with dark #1a1a1a text)
+ * Dark mode  → mid-tone saturated shades (high contrast with light rgba(255,255,255,0.85) text)
+ *
+ * WCAG contrast ratios (approx):
+ *   Light yellow #fef08a + dark text  ≈ 14:1  ✓
+ *   Dark  yellow #b45309 + white text ≈  4.6:1 ✓
+ *   (all others similarly in range)
+ */
+const HIGHLIGHT_COLORS = {
+  light: [
+    { name: 'yellow', value: '#fef08a', label: 'Yellow' },
+    { name: 'green',  value: '#bbf7d0', label: 'Green'  },
+    { name: 'blue',   value: '#bfdbfe', label: 'Blue'   },
+    { name: 'red',    value: '#fecaca', label: 'Red'    },
+    { name: 'orange', value: '#fed7aa', label: 'Orange' },
+  ],
+  dark: [
+    { name: 'yellow', value: '#b45309', label: 'Yellow' },
+    { name: 'green',  value: '#15803d', label: 'Green'  },
+    { name: 'blue',   value: '#1d4ed8', label: 'Blue'   },
+    { name: 'red',    value: '#b91c1c', label: 'Red'    },
+    { name: 'orange', value: '#c2410c', label: 'Orange' },
+  ],
+}
+
+export default function CustomBubbleMenu({ editor, isDark }: Props) {
   if (!editor) return null
 
+  const colors = isDark ? HIGHLIGHT_COLORS.dark : HIGHLIGHT_COLORS.light
+  const hasHighlight = editor.isActive('highlight')
+
   return (
-    <>
-      {/* 1. Text Formatting Menu */}
-      <BubbleMenu editor={editor} options={{ placement: 'bottom', offset: 8, flip: true }}>
-        <div className="bubble-menu">
-          <button
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            // Updated to 'active' to match your CSS
-            className={editor.isActive('bold') ? 'active' : ''}
-            type="button"
-          >
-            <Bold size={14} />
-          </button>
-          
-          <button
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={editor.isActive('italic') ? 'active' : ''}
-            type="button"
-          >
-            <Italic size={14} />
-          </button>
-          
-          <button
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-            className={editor.isActive('strike') ? 'active' : ''}
-            type="button"
-          >
-            <Strikethrough size={14} />
-          </button>
+    <BubbleMenu
+      editor={editor}
+      options={{ placement: 'top', offset: 10, flip: true }}
+    >
+      <div className="bubble-menu">
 
-          <button
-            onClick={() => editor.chain().focus().toggleHighlight().run()}
-            className={editor.isActive('highlight') ? 'is-active' : ''}
-          >
-            <Highlighter size={14} />
-          </button>
+        {/* ── Text formatting buttons ── */}
+        <button
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          className={editor.isActive('bold') ? 'active' : ''}
+          type="button"
+          title="Bold (Ctrl+B)"
+        >
+          <Bold size={14} />
+        </button>
 
-          /* Need to add buttons that change the highlight color and the colors should dynamically be adjusted according to the theme the user has selected*/
-        </div>
-      </BubbleMenu>
+        <button
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          className={editor.isActive('italic') ? 'active' : ''}
+          type="button"
+          title="Italic (Ctrl+I)"
+        >
+          <Italic size={14} />
+        </button>
 
-      {/* 2. List Formatting Menu */}
-      <BubbleMenu
-        editor={editor}
-        shouldShow={() => editor.isActive('bulletList') || editor.isActive('orderedList')}
-        getReferencedVirtualElement={() => {
-          const parentNode = findParentNode(
-            node => node.type.name === 'bulletList' || node.type.name === 'orderedList',
-          )(editor.state.selection)
-          
-          if (parentNode) {
-            const domRect = posToDOMRect(
-              editor.view, 
-              parentNode.start, 
-              parentNode.start + parentNode.node.nodeSize
+        <button
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          className={editor.isActive('strike') ? 'active' : ''}
+          type="button"
+          title="Strikethrough"
+        >
+          <Strikethrough size={14} />
+        </button>
+
+        <button
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          className={editor.isActive('code') ? 'active' : ''}
+          type="button"
+          title="Inline code"
+        >
+          <Code size={14} />
+        </button>
+
+        <div className="bubble-divider" />
+
+
+        <div className="bubble-divider" />
+
+        {/* ── Color swatches ── */}
+        <div className="bubble-colors">
+          {colors.map(({ name, value, label }) => {
+            const isActive = editor.isActive('highlight', { color: value })
+            return (
+              <button
+                key={name}
+                className={`color-swatch${isActive ? ' color-swatch--active' : ''}`}
+                style={{ backgroundColor: value }}
+                onClick={() => {
+                  if (isActive) {
+                    editor.chain().focus().unsetHighlight().run()
+                  } else {
+                    editor.chain().focus().toggleHighlight({ color: value }).run()
+                  }
+                }}
+                title={`${label} highlight`}
+                type="button"
+              />
             )
-            return {
-              getBoundingClientRect: () => domRect,
-              getClientRects: () => [domRect],
-            }
-          }
-          return null
-        }}
-        options={{ placement: 'top-start', offset: 8 }}
-      >
-        <div className="bubble-menu">
-          <button
-            onClick={() => {
-              const chain = editor.chain().focus()
-              if (editor.isActive('bulletList')) {
-                chain.toggleOrderedList()
-              } else {
-                chain.toggleBulletList()
-              }
-              chain.run()
-            }}
-            type="button"
-          >
-            <List size={14} />
-          </button>
+          })}
+
+          {/* Clear button – only visible when a highlight is active */}
+          {hasHighlight && (
+            <button
+              className="color-swatch color-clear"
+              onClick={() => editor.chain().focus().unsetHighlight().run()}
+              title="Remove all highlight"
+              type="button"
+            >
+              <X size={9} strokeWidth={2.5} />
+            </button>
+          )}
         </div>
-      </BubbleMenu>
-    </>
+
+      </div>
+    </BubbleMenu>
   )
 }

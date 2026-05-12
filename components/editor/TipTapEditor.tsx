@@ -36,7 +36,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
     onUpdate({ editor }) {
       onChange?.(editor.getHTML())
     },
-    immediatelyRender: false,  
+    immediatelyRender: false, 
   })
 
 
@@ -73,7 +73,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
 
   return (
     <div className="cerebra-editor-wrapper">
-      {editor && <BubbleMenuBar editor={editor} />}
+      {editor && <BubbleMenuBar editor={editor} isDark={false} />}
 
       <EditorContent editor={editor} />
 

@@ -12,6 +12,9 @@ import { TableKit } from '@tiptap/extension-table'
 import { ListKeymap, ListKit } from "@tiptap/extension-list"
 import { TextStyleKit } from '@tiptap/extension-text-style'
 import FloatingMenu from '@tiptap/extension-floating-menu'
+import Text from '@tiptap/extension-text'
+import { Color, TextStyle } from '@tiptap/extension-text-style'
+
 
 const lowlight = createLowlight(common)
 
@@ -79,4 +82,8 @@ export const getExtensions = () => [
   FloatingMenu,
 
   Highlight.configure({ multicolor: true }),
+
+  TextStyle,
+  Color,
+  
 ]
