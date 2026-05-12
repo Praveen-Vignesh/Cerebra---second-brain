@@ -1,19 +1,20 @@
 import StarterKit from "@tiptap/starter-kit"
 import Heading from "@tiptap/extension-heading"
-import Image from "@tiptap/extension-image"
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
-import Link from "@tiptap/extension-link"
+import Text from '@tiptap/extension-text'
+import TextAlign from '@tiptap/extension-text-align'
+import Typography from '@tiptap/extension-typography'
 import Highlight from "@tiptap/extension-highlight"
 import Placeholder from "@tiptap/extension-placeholder"
+import { TextStyleKit } from '@tiptap/extension-text-style'
+import Image from "@tiptap/extension-image"
+import Link from "@tiptap/extension-link"
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
 import { common, createLowlight } from "lowlight"
 import { Details, DetailsContent, DetailsSummary } from '@tiptap/extension-details'
-import Typography from '@tiptap/extension-typography'
 import { TableKit } from '@tiptap/extension-table'
-import { ListKeymap, ListKit } from "@tiptap/extension-list"
-import { TextStyleKit } from '@tiptap/extension-text-style'
-import FloatingMenu from '@tiptap/extension-floating-menu'
-import Text from '@tiptap/extension-text'
 import { Color, TextStyle } from '@tiptap/extension-text-style'
+import FloatingMenu from '@tiptap/extension-floating-menu'
+import { BulletList, ListItem, OrderedList } from '@tiptap/extension-list'
 
 
 const lowlight = createLowlight(common)
@@ -75,9 +76,9 @@ export const getExtensions = () => [
     types: ['paragraph', 'heading'],
     HTMLAttributes: { class: "cerebra-typography" },
   }),
-
-  ListKeymap,
-  ListKit,
+  BulletList,
+  OrderedList,
+  ListItem,
 
   FloatingMenu,
 
@@ -85,5 +86,8 @@ export const getExtensions = () => [
 
   TextStyle,
   Color,
-  
+  TextAlign.configure({ types: ['paragraph', 'heading', 'listItem'] }),
+
+  Text,
+
 ]

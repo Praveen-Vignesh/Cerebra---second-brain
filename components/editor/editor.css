@@ -386,3 +386,136 @@ html[data-theme="dark"] {
   background-color: #ffcc00; /* Your bright highlight color */
   color: #000000 !important; /* Force text to black strictly inside the highlight */
 }
+
+
+/* ── Multi-Row Bubble Layout ────────────────────────── */
+.bubble-menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--bubble-bg);
+  border: 1px solid var(--bubble-border);
+  border-radius: 10px;
+  box-shadow: var(--bubble-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.bubble-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ── Typography Dropdowns (Font Family & Size) ──────── */
+.bubble-select-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  height: 28px;
+  background: var(--bubble-hover-bg);
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: background 0.13s ease, border-color 0.13s ease;
+}
+
+.bubble-select-group:hover {
+  border-color: var(--bubble-border);
+}
+
+.bubble-select-group svg {
+  color: var(--bubble-text);
+}
+
+.bubble-select {
+  background: transparent;
+  border: none;
+  color: var(--bubble-text);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  height: 100%;
+}
+
+/* Styling the expanded dropdown options */
+.bubble-select option {
+  background: var(--bubble-bg);
+  color: var(--editor-text);
+  padding: 4px;
+}
+
+.bubble-select:focus {
+  color: var(--bubble-active-text);
+}
+
+/* ── Native Color Picker ────────────────────────────── */
+.bubble-color-picker {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Specific pseudo-elements to style the inner color box cleanly */
+.bubble-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.bubble-color-picker::-webkit-color-swatch {
+  border: 1px solid var(--bubble-border);
+  border-radius: 4px;
+}
+
+.bubble-color-picker::-moz-color-swatch {
+  border: 1px solid var(--bubble-border);
+  border-radius: 4px;
+}
+
+
+
+/* ── Lists (Bullets & Numbers) ──────────────────────── */
+
+/* Restore indentation and basic spacing */
+.cerebra-editor ul,
+.cerebra-editor ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+/* Define the marker types */
+.cerebra-editor ul {
+  list-style-type: disc;
+}
+
+.cerebra-editor ol {
+  list-style-type: decimal;
+}
+
+/* Explicitly force markers to use your theme's text color */
+.cerebra-editor ul li::marker,
+.cerebra-editor ol li::marker {
+  color: var(--editor-text);
+}
+
+/* Fix nested list spacing so they look clean */
+.cerebra-editor ul ul,
+.cerebra-editor ol ol,
+.cerebra-editor ul ol,
+.cerebra-editor ol ul {
+  margin: 0.25rem 0;
+}
+
+/* TipTap wraps list text in <p> tags, which can cause double-spacing. 
+   This tightens the paragraphs inside lists. */
+.cerebra-editor li p {
+  margin: 0;
+}
