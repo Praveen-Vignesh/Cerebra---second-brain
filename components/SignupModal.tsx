@@ -67,12 +67,12 @@ export default function SignupForm({ onToggle }: { onToggle: () => void }) {
         </button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <div className="text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <button onClick={onToggle} className="font-semibold text-accent hover:text-accent/80 transition-colors">
+        <button type="button" onClick={onToggle} className="font-semibold text-accent hover:text-accent/80 transition-colors">
           Sign in
         </button>
-      </p>
+      </div>
     </div>
   );
 }

@@ -66,12 +66,12 @@ export default function LoginForm({ onToggle }: { onToggle: () => void }) {
         </button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <div className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <button onClick={onToggle} className="font-semibold text-accent hover:text-accent/80 transition-colors">
+        <button type="button" onClick={onToggle} className="font-semibold text-accent hover:text-accent/80 transition-colors">
           Sign up
         </button>
-      </p>
+      </div>
     </div>
   );
 }
