@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { FileText, Layers, FolderKanban } from "lucide-react"
-import InstaDump from "@/components/shared/InstaDump"
-import StatCard from "@/components/shared/StatCard"
-import NoteCard from "@/components/shared/NoteCard"
-import ProjectCard from "@/components/shared/ProjectCard"
+import InstaDump from "@/components/dashboard/InstaDump"
+import StatCard from "@/components/dashboard/StatCard"
+import NoteCard from "@/components/dashboard/NoteCard"
+import ProjectCard from "@/components/dashboard/ProjectCard"
 
 export default function DashboardPage() {
 	const [greeting, setGreeting] = useState("")

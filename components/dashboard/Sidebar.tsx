@@ -194,6 +194,10 @@ export default function Sidebar({ user, isOpen, onClose, onSearchClick }: Sideba
               <LogOut className="h-5 w-5" />
               Logout
             </button>
+
+            <button className='mt-3 w-full flex gap-x-3 rounded-lg px-3 py-2 text-sm font-semibold leading-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors'>
+                Change theme
+            </button>
           </div>
         </div>
       </div>

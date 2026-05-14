@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-:root {
-  /* Light theme defaults */
+:root, [data-theme="light"]{
   --background: #f8f7f4;
   --foreground: #1a1a1a;
   --muted: #6b7280;
@@ -16,9 +15,24 @@
   --sidebar-border: #e5e7eb;
 }
 
-/* System-preference dark mode (when no data-theme is set) */
+[data-theme="dark"] {
+    --background: #111318;
+    --foreground: #f9fafb;
+    --muted: #6b7280;
+    --muted-foreground: #9ca3af;
+    --border: #374151;
+    --accent: #4f46e5;
+    --accent-foreground: #ffffff;
+    --card: #1f2937;
+    --card-foreground: #f9fafb;
+    --sidebar: #1f2937;
+    --sidebar-foreground: #f9fafb;
+    --sidebar-border: #374151;
+  }
+
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --background: #111318;
     --foreground: #f9fafb;
     --muted: #6b7280;
@@ -33,7 +47,6 @@
     --sidebar-border: #374151;
   }
 }
-
 /* ── Manual theme overrides via data-theme attribute ── */
 /* These have higher specificity than :root and override the media query */
 

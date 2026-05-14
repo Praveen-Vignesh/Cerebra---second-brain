@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import LoginForm from './LoginModal';
-import SignupForm from './SignupModal';
+import LoginForm from '@/components/auth/LoginModal';
+import SignupForm from '@/components/auth/SignupModal';
 
 export default function AuthContainer() {
   const [isLogin, setIsLogin] = useState(true);

@@ -4,15 +4,9 @@ import { createClient } from "@/utils/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { getOrigin } from "./getOrigin";
 
 export type AuthResponse = { error: string | null }
-
-async function getOrigin() {
-    const headersList = await headers();
-    const host = headersList.get("host"); // Yields localhost:3000 or 192.168.0.5:3000
-    const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-    return `${protocol}://${host}`;
-}
 
 export async function loginWithEmail(formData: FormData): Promise<AuthResponse> {
     const supabase = await createClient();
