@@ -44,7 +44,7 @@ export const getExtensions = () => [
 
   Highlight.configure({ multicolor: false }),
 
-  Placeholder.configure({ placeholder: "Write something, or press '/' for commands…", }),
+  Placeholder.configure({ placeholder: "What's on your mind ?", }),
     
   TableKit.configure({
     table: { resizable: true, HTMLAttributes: { class: "cerebra-table" } },

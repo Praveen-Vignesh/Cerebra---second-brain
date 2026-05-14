@@ -108,7 +108,7 @@ html[data-theme="dark"] {
 /* ── BubbleMenu ─────────────────────────────────────── */
 .bubble-menu {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   gap: 2px;
   padding: 5px 8px;
   background: var(--bubble-bg);

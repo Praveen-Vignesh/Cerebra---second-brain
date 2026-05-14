@@ -64,7 +64,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
         },
       }}
     >
-      <div className="flex flex-col gap-2 p-2 rounded-lg shadow-lg border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
+      <div className="bubble-menu flex flex-col gap-2 p-2 rounded-lg shadow-lg border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
         
         {/* ── ROW 1: Formatting, Alignment, & Lists ── */}
         <div className="bubble-row flex items-center gap-1">
