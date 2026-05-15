@@ -7,6 +7,7 @@ import Highlight from "@tiptap/extension-highlight"
 import Placeholder from "@tiptap/extension-placeholder"
 import { TextStyleKit } from '@tiptap/extension-text-style'
 import Image from "@tiptap/extension-image"
+import Audio from "@tiptap/extension-audio"
 import Link from "@tiptap/extension-link"
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
 import { common, createLowlight } from "lowlight"
@@ -19,7 +20,7 @@ import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
 import Underline from '@tiptap/extension-underline'
 import Blockquote from '@tiptap/extension-blockquote'
-
+import { Gapcursor } from '@tiptap/extensions'
 
 const lowlight = createLowlight(common)
 
@@ -88,5 +89,7 @@ export const getExtensions = () => [
   Subscript,
   Superscript,
   Underline,
-  Blockquote
+  Blockquote,
+
+  Gapcursor,
 ]

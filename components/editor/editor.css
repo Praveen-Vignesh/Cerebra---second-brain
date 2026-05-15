@@ -529,10 +529,83 @@ html[data-theme="dark"] {
   margin-left: 0;
   font-style: italic;
   color: var(--editor-text);
-  opacity: 0.85; /* Dims the quote slightly to differentiate it from main body text */
+  opacity: 0.85; /* Dims the quote slightly to differentiate it from main body text */ 
 }
 
 /* TipTap wraps blockquote text in <p> tags. This prevents awkward double-spacing */
 .cerebra-editor blockquote p {
   margin: 0;
+}
+
+
+/* ── Bottom Bar ─────────────────────────────────────────── */
+.editor-bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #111318;          /* matches dark bg */
+  border-radius: 0 0 8px 8px;
+  flex-wrap: wrap;
+}
+
+.editor-bottom-bar__left,
+.editor-bottom-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.editor-bottom-bar__right {
+  margin-left: auto;
+  gap: 8px;
+}
+
+.bottom-bar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.bottom-bar-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+.bottom-bar-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bottom-bar-btn--ai {
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+.bottom-bar-btn--ai:hover {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+}
+
+.bottom-bar-btn--submit {
+  background: #4f46e5;
+  color: white;
+  padding: 5px 14px;
+}
+.bottom-bar-btn--submit:hover {
+  background: #4338ca;
+}
+
+.bottom-bar-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
 }

@@ -8,11 +8,13 @@ import BubbleMenuBar from './BubbleMenuBar'
 import { getExtensions } from './extensions'
 import 'tippy.js/dist/tippy.css'
 import './editor.css' 
+import Bottombar from './bottomBar'
 
 const EmojiPicker = dynamic(
   () => import('@emoji-mart/react').then(m => m.default),
   { ssr: false }
 )
+
 
 type Props = {
   initialContent?: string
@@ -77,6 +79,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
 
       <EditorContent editor={editor} />
 
+      <Bottombar editor={editor} />
 
       <input
         ref={imageInputRef}
