@@ -62,21 +62,28 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 
 
   const leftTools: ToolButton[] = [
-        {
-            icon: <Image width={16} />,
-            label: 'Insert image',
-            action: () => imageref.current?.click(),
-        },
-        {
-            icon: <Paperclip size={16} />,
-            label: 'Attach file',
-            action: () => fileref.current?.click(),
-        },
-        {
-            icon: <Table size={16} />,
-            label: 'Insert table',
-            action: handleTable,
-        },
+      {
+          icon: <Image width={16} />,
+          label: 'Insert image',
+          action: () => imageref.current?.click(),
+      },
+      {
+          icon: <Paperclip size={16} />,
+          label: 'Attach file',
+          action: () => fileref.current?.click(),
+      },
+      {
+          icon: <Table size={16} />,
+          label: 'Insert table',
+          action: handleTable,
+      },
+      {
+          icon: <Smile size={16} />,
+          label: 'Insert Details/Summary',
+          action: () => { 
+            
+        }
+        }
     ]
 
     return (
