@@ -15,6 +15,10 @@ import { TableKit } from '@tiptap/extension-table'
 import { Color, TextStyle } from '@tiptap/extension-text-style'
 import FloatingMenu from '@tiptap/extension-floating-menu'
 import { BulletList, ListItem, OrderedList } from '@tiptap/extension-list'
+import Subscript from '@tiptap/extension-subscript'
+import Superscript from '@tiptap/extension-superscript'
+import Underline from '@tiptap/extension-underline'
+import Blockquote from '@tiptap/extension-blockquote'
 
 
 const lowlight = createLowlight(common)
@@ -61,16 +65,7 @@ export const getExtensions = () => [
   DetailsContent,
   DetailsSummary,
 
-  TextStyleKit.configure({
-    fontSize: {
-      options: [
-        { value: "12px", label: "Small" },
-        { value: "16px", label: "Medium" },
-        { value: "20px", label: "Large" }
-      ]
-    },
-
-  }),
+  TextStyleKit,
 
   Typography.configure({
     types: ['paragraph', 'heading'],
@@ -89,5 +84,9 @@ export const getExtensions = () => [
   TextAlign.configure({ types: ['paragraph', 'heading', 'listItem'] }),
 
   Text,
-
+  
+  Subscript,
+  Superscript,
+  Underline,
+  Blockquote
 ]

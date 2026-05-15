@@ -519,3 +519,20 @@ html[data-theme="dark"] {
 .cerebra-editor li p {
   margin: 0;
 }
+
+/* Blockquotes */
+.cerebra-editor blockquote {
+  /* Using your existing placeholder variable gives it a perfect, subtle adaptive color (dark/light) */
+  border-left: 4px solid var(--editor-placeholder); 
+  padding-left: 16px;
+  margin: 16px 0;
+  margin-left: 0;
+  font-style: italic;
+  color: var(--editor-text);
+  opacity: 0.85; /* Dims the quote slightly to differentiate it from main body text */
+}
+
+/* TipTap wraps blockquote text in <p> tags. This prevents awkward double-spacing */
+.cerebra-editor blockquote p {
+  margin: 0;
+}

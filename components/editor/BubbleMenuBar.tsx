@@ -6,7 +6,7 @@ import { BubbleMenu } from '@tiptap/react/menus'
 import { 
   Bold, Italic, Strikethrough, Code, X, 
   AlignLeft, AlignCenter, AlignRight, 
-  List, ListOrdered, Palette, Type
+  List, ListOrdered, Palette, Type, Underline, Quote
 } from 'lucide-react'
 
 type Props = {
@@ -92,6 +92,16 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
           >
             <Strikethrough size={16} />
           </button>
+
+          <button
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive('underline') ? 'bg-gray-200 dark:bg-gray-600' : ''}`}
+            title="Underline"
+            type="button"
+          >
+            <Underline size={16} />
+          </button>
+
           <button
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive('code') ? 'bg-gray-200 dark:bg-gray-600' : ''}`}
@@ -99,6 +109,32 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
             type="button"
           >
             <Code size={16} />
+          </button>
+
+          <button
+            onClick={() => editor.chain().focus().setBlockquote().run()}
+            className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${editor.isActive('blockquote') ? 'bg-gray-200 dark:bg-gray-600' : ''}`}
+            title="Blockquote"
+            type="button"
+          >
+            <Quote size={16} />
+          </button>
+            
+
+          <button className='p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700'
+            type="button"
+            onClick={() => {editor.chain().focus().toggleSubscript().run()}}
+            title="Subscript"
+          >
+            <span className="text-xs">X<sub>2</sub></span>
+          </button>
+
+          <button className='p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700'
+            type="button"
+            onClick={() => {editor.chain().focus().toggleSuperscript().run()}}
+            title="Superscript"
+          >
+            <span className="text-xs">X<sup>2</sup></span>
           </button>
 
           <div className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1" />
