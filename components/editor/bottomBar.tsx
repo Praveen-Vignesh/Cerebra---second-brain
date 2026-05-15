@@ -14,7 +14,6 @@ interface BottomBarProps {
   onAiAnalysis?: (content: string) => Promise<void>;
 }
 
-
 const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
     const imageref = React.useRef<HTMLInputElement>(null)
     const fileref = React.useRef<HTMLInputElement>(null)
@@ -58,7 +57,11 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 
     const handleTable = () => {
         editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-    }
+  }
+  
+  const handleDetails = () => {
+    editor.chain().focus().setDetails().run()
+  }
 
 
   const leftTools: ToolButton[] = [
@@ -77,14 +80,7 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
           label: 'Insert table',
           action: handleTable,
       },
-      {
-          icon: <Smile size={16} />,
-          label: 'Insert Details/Summary',
-          action: () => { 
-            
-        }
-        }
-    ]
+  ]
 
     return (
     <div className="editor-bottom-bar">
@@ -130,7 +126,7 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
           className="bottom-bar-btn bottom-bar-btn--submit"
         >
           < SendHorizonal size={16} />
-          <span>Submit</span>
+          <span>Save</span>
         </button>
       </div>
     </div>

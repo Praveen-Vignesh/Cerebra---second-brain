@@ -145,12 +145,15 @@ export const getExtensions = () => [
     tableRow: { HTMLAttributes: { class: "cerebra-table-row" } },
     tableCell: { HTMLAttributes: { class: "cerebra-table-cell" } },
   }),
+
   Details.configure({
+    persist: true,
     openClassName: "cerebra-details-isOpen",
     HTMLAttributes: { class: "cerebra-details" },
   }),
   DetailsContent,
   DetailsSummary,
+
   TextStyleKit.configure({
     fontSize: {
     },
