@@ -1,137 +1,147 @@
-import React, { useState } from 'react'
-import { Editor } from '@tiptap/react'
-import { Image, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react'
+import React, { useState } from 'react';
+import { Editor } from '@tiptap/react';
+import { Image, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react';
 
 type ToolButton = {
-    icon: React.ReactNode
-    label: string
-    action: () => void
-}
+	icon: React.ReactNode;
+	label: string;
+	action: () => void;
+};
 
 interface BottomBarProps {
-  editor: Editor;
-  onSubmit?: (content: string) => void;
-  onAiAnalysis?: (content: string) => Promise<void>;
+	editor: Editor;
+	onSubmit?: (content: string) => void;
+	onAiAnalysis?: (content: string) => Promise<void>;
 }
 
 const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
-    const imageref = React.useRef<HTMLInputElement>(null)
-    const fileref = React.useRef<HTMLInputElement>(null)
-    
-    const [aiLoading, setaiLoading] = useState(false)
+	const imageref = React.useRef<HTMLInputElement>(null);
+	const fileref = React.useRef<HTMLInputElement>(null);
 
-    const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file || !editor) return
-        const url = URL.createObjectURL(file)
-        editor.chain().focus().insertContent(
-        `<p><a href="${url}" target="_blank">📎 ${file.name}</a></p>`
-        ).run()
-        e.target.value = ''
-    }
+	const [aiLoading, setaiLoading] = useState(false);
 
-    const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file || !editor) return
-        const reader = new FileReader()
-        reader.onload = () => {
-          editor.chain().focus().setImage({ src: reader.result as string}).run()
-        }
-        reader.readAsDataURL(file)
-        e.target.value = ''
-    }
+	const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file || !editor) return;
+		const url = URL.createObjectURL(file);
+		editor
+			.chain()
+			.focus()
+			.insertContent(`<p><a href="${url}" target="_blank">📎 ${file.name}</a></p>`)
+			.run();
+		e.target.value = '';
+	};
 
-    const handleAiAnalyze = async () => {
-        setaiLoading(true)
-        try {
-        await onAiAnalysis?.(editor.getHTML())
-        } finally {
-            setaiLoading(false)
-        }
-    }
-  
-    const handleTable = () => {
-        editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-    }
+	const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file || !editor) return;
+		const reader = new FileReader();
+		reader.onload = () => {
+			editor
+				.chain()
+				.focus()
+				.setImage({ src: reader.result as string })
+				.run();
+		};
+		reader.readAsDataURL(file);
+		e.target.value = '';
+	};
 
-    const handleSubmit = () => { 
-        onSubmit?.(editor.getHTML())
-    }
-    
+	const handleAiAnalyze = async () => {
+		setaiLoading(true);
+		try {
+			await onAiAnalysis?.(editor.getHTML());
+		} finally {
+			setaiLoading(false);
+		}
+	};
 
+	const handleTable = () => {
+		editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+	};
 
+	const handleSubmit = () => {
+		onSubmit?.(editor.getHTML());
+	};
 
-    const leftTools: ToolButton[] = [
-      {
-        icon: <Image width={16} />,
-        label: 'Insert image',
-        action: () => imageref.current?.click(),
-      },
-      {
-        icon: <Paperclip size={16} />,
-        label: 'Attach file',
-        action: () => fileref.current?.click(),
-      },
-      {
-        icon: <Table size={16} />,
-        label: 'Insert table',
-        action: handleTable,
-      },
-    ]
+	const leftTools: ToolButton[] = [
+		{
+			icon: <Image width={16} />,
+			label: 'Insert image',
+			action: () => imageref.current?.click(),
+		},
+		{
+			icon: <Paperclip size={16} />,
+			label: 'Attach file',
+			action: () => fileref.current?.click(),
+		},
+		{
+			icon: <Table size={16} />,
+			label: 'Insert table',
+			action: handleTable,
+		},
+	];
 
-    return (
-      <div className="editor-bottom-bar">
-        {/* hidden file inputs */}
+	return (
+		<div className="">
+			{/* hidden file inputs */}
 
-        <input ref={imageref} type="file" accept="image/*" className="hidden" onChange={handleImage} />
-        <input ref={fileref}  type="file" accept=".pdf,.doc,.docx,.txt,.csv,.xlsx" className="hidden" onChange={handleFile} />
+			<input
+				ref={imageref}
+				type="file"
+				accept="image/*"
+				className=""
+				onChange={handleImage}
+			/>
+			<input
+				ref={fileref}
+				type="file"
+				accept=".pdf,.doc,.docx,.txt,.csv,.xlsx"
+				className=""
+				onChange={handleFile}
+			/>
 
-        {/* left cluster — insert tools */}
+			{/* left cluster — insert tools */}
 
-        <div className="editor-bottom-bar__left">
-          {leftTools.map((tool) => (
-            <button
-              key={tool.label}
-              type="button"
-              title={tool.label}
-              onClick={tool.action}
-              className="bottom-bar-btn"
-            >
-              {tool.icon}
-            </button>
-          ))}
-        </div>
+			<div className="">
+				{leftTools.map((tool) => (
+					<button
+						key={tool.label}
+						type="button"
+						title={tool.label}
+						onClick={tool.action}
+						className=""
+					>
+						{tool.icon}
+					</button>
+				))}
+			</div>
 
-        {/* divider */}
+			{/* divider */}
 
-        <div className="bottom-bar-divider" />
+			<div className="" />
 
-        {/* right cluster — actions */}
-        
-        <div className="editor-bottom-bar__right">
-          <button
-            type="button"
-            title="AI Analysis & Suggestions"
-            onClick={handleAiAnalyze}
-            disabled={aiLoading}
-            className="bottom-bar-btn bottom-bar-btn--ai"
-          >
-            <Sparkles size={16} />
-            <span>{aiLoading ? 'Analyzing…' : 'AI Analyze'}</span>
-          </button>
+			{/* right cluster — actions */}
 
-          <button
-            type="button"
-            title="Submit"
-            onClick={handleSubmit}
-            className="bottom-bar-btn bottom-bar-btn--submit"
-          >
-            < SendHorizonal size={16} />
-            <span>Save</span>
-          </button>
-        </div>
-      </div>
-  )
-}
+			<div className="">
+				<button
+					type="button"
+					title="AI Analysis & Suggestions"
+					onClick={handleAiAnalyze}
+					disabled={aiLoading}
+					className=""
+				>
+					<Sparkles size={16} />
+					<span>{aiLoading ? 'Analyzing…' : 'AI Analyze'}</span>
+				</button>
 
-export default Bottombar
+				<button type="button" title="Submit" onClick={handleSubmit} className="">
+					<SendHorizonal size={16} />
+					<span>Save</span>
+				</button>
+			</div>
+		</div>
+	);
+};
+
+export default Bottombar;

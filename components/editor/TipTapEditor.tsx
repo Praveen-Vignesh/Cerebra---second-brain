@@ -1,78 +1,72 @@
-'use client'
+'use client';
 
-import { useEditor, EditorContent } from '@tiptap/react'
-import { useEffect, useRef, useState } from 'react'
+import { useEditor, EditorContent } from '@tiptap/react';
+import { useEffect, useRef, useState } from 'react';
 
-import dynamic from 'next/dynamic'
-import BubbleMenuBar from './BubbleMenuBar'
-import { getExtensions } from './extensions'
-import 'tippy.js/dist/tippy.css'
-import './editor.css' 
-import Bottombar from './bottomBar'
+import dynamic from 'next/dynamic';
+import BubbleMenuBar from './BubbleMenuBar';
+import { getExtensions } from './extensions';
+import 'tippy.js/dist/tippy.css';
+import Bottombar from './bottomBar';
 
-const EmojiPicker = dynamic(
-  () => import('@emoji-mart/react').then(m => m.default),
-  { ssr: false }
-)
-
+const EmojiPicker = dynamic(() => import('@emoji-mart/react').then((m) => m.default), {
+	ssr: false,
+});
 
 type Props = {
-  initialContent?: string
-  onChange?: (html: string) => void
-  placeholder?: string
-}
+	initialContent?: string;
+	onChange?: (html: string) => void;
+	placeholder?: string;
+};
 
 export default function TipTapEditor({ initialContent, onChange, placeholder }: Props) {
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  const editor = useEditor({
-    extensions: getExtensions(),
-    content: initialContent || '',
-    editorProps: {
-      attributes: {
-        class: 'cerebra-editor',
-        spellcheck: 'true',
-      },
-    },
-    onUpdate({ editor }) {
-      onChange?.(editor.getHTML())
-    },
-    immediatelyRender: false, 
-  })
+	const editor = useEditor({
+		extensions: getExtensions(),
+		content: initialContent || '',
+		editorProps: {
+			attributes: {
+				spellcheck: 'true',
+			},
+		},
+		onUpdate({ editor }) {
+			onChange?.(editor.getHTML());
+		},
+		immediatelyRender: false,
+	});
 
+	useEffect(() => {
+		const handleInsertEmoji = () => setShowEmojiPicker(true);
 
-  useEffect(() => {
-    const handleInsertEmoji = () => setShowEmojiPicker(true)
+		window.addEventListener('editor:insert-emoji', handleInsertEmoji);
+		return () => {
+			window.removeEventListener('editor:insert-emoji', handleInsertEmoji);
+		};
+	}, []);
 
+	const handleEmojiSelect = (emoji: { native: string }) => {
+		editor?.chain().focus().insertContent(emoji.native).run();
+		setShowEmojiPicker(false);
+	};
 
-    window.addEventListener('editor:insert-emoji', handleInsertEmoji)
-    return () => {
-      window.removeEventListener('editor:insert-emoji', handleInsertEmoji)
-    }
-  }, [])
+	if (!editor) return null;
 
-  const handleEmojiSelect = (emoji: { native: string }) => {
-    editor?.chain().focus().insertContent(emoji.native).run()
-    setShowEmojiPicker(false)
-  }
+	return (
+		<div className="">
+			{editor && <BubbleMenuBar editor={editor} isDark={false} />}
 
-  if (!editor) return null
+			<EditorContent editor={editor} />
 
-  return (
-    <div className="cerebra-editor-wrapper">
-      {editor && <BubbleMenuBar editor={editor} isDark={false} />}
+			<Bottombar editor={editor} />
 
-      <EditorContent editor={editor} />
-
-      <Bottombar editor={editor} />
-
-      {showEmojiPicker && (
-        <div className="emoji-picker-overlay" onClick={() => setShowEmojiPicker(false)}>
-          <div onClick={e => e.stopPropagation()}>
-            <EmojiPicker onEmojiSelect={handleEmojiSelect} theme="dark" />
-          </div>
-        </div>
-      )}
-    </div>
-  )
+			{showEmojiPicker && (
+				<div className="" onClick={() => setShowEmojiPicker(false)}>
+					<div onClick={(e) => e.stopPropagation()}>
+						<EmojiPicker onEmojiSelect={handleEmojiSelect} theme="dark" />
+					</div>
+				</div>
+			)}
+		</div>
+	);
 }
