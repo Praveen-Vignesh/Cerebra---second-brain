@@ -127,8 +127,15 @@ export const getExtensions = () => [
     HTMLAttributes: { class: "cerebra-code-block" },
   }),
   Image.configure({
-    allowBase64: true,
+    resize: {
+      enabled: true,
+      directions: ['top', 'bottom', 'left', 'right'], // can be any direction or diagonal combination
+      minWidth: 50,
+      minHeight: 50,
+      alwaysPreserveAspectRatio: true,
+    },
     HTMLAttributes: { class: "cerebra-image" },
+    inline: true,
   }),
   Link.configure({
     openOnClick: true,

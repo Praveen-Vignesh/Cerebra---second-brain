@@ -23,7 +23,6 @@ type Props = {
 }
 
 export default function TipTapEditor({ initialContent, onChange, placeholder }: Props) {
-  const imageInputRef = useRef<HTMLInputElement>(null)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
   const editor = useEditor({
@@ -43,28 +42,14 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
 
 
   useEffect(() => {
-    const handleInsertImage = () => imageInputRef.current?.click()
     const handleInsertEmoji = () => setShowEmojiPicker(true)
 
-    window.addEventListener('editor:insert-image', handleInsertImage)
+
     window.addEventListener('editor:insert-emoji', handleInsertEmoji)
     return () => {
-      window.removeEventListener('editor:insert-image', handleInsertImage)
       window.removeEventListener('editor:insert-emoji', handleInsertEmoji)
     }
   }, [])
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file || !editor) return
-
-    const reader = new FileReader()
-    reader.onload = () => {
-      editor.chain().focus().setImage({ src: reader.result as string }).run()
-    }
-    reader.readAsDataURL(file)
-    e.target.value = ''
-  }
 
   const handleEmojiSelect = (emoji: { native: string }) => {
     editor?.chain().focus().insertContent(emoji.native).run()
@@ -80,15 +65,6 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
       <EditorContent editor={editor} />
 
       <Bottombar editor={editor} />
-
-      <input
-        ref={imageInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleImageUpload}
-      />
-
 
       {showEmojiPicker && (
         <div className="emoji-picker-overlay" onClick={() => setShowEmojiPicker(false)}>
