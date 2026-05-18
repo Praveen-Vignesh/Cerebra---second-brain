@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
-:root {
-  /* ── Ember Light ─────────────────────────────────────── */
+/* ── 1. Root / Default Theme (Light) ─────────────────── */
+/* Baseline variables. Applies when no data-theme is set (and OS is light), 
+   OR when the user explicitly forces light mode. */
+:root,
+[data-theme="light"] {
   --background: #F8F6F3;
   --foreground: #1A1714;
   --muted: #6B6560;
@@ -19,9 +22,31 @@
   --destructive: #C0392B;
 }
 
+/* ── 2. Explicit Dark Theme ──────────────────────────── */
+/* Applies ONLY when the user explicitly toggles to dark mode. */
+[data-theme="dark"] {
+  --background: #131210;
+  --foreground: #F0EDE8;
+  --muted: #6B6560;
+  --muted-foreground: #857F79;
+  --border: #272320;
+  --accent: #B84A0E;
+  --accent-foreground: #FFFFFF;
+  --card: #1C1916;
+  --card-foreground: #F0EDE8;
+  --sidebar: #171512;
+  --sidebar-foreground: #F0EDE8;
+  --sidebar-border: #272320;
+  --sidebar-accent: #222018;
+  --sidebar-accent-foreground: #F0EDE8;
+  --destructive: #C0392B;
+}
+
+/* ── 3. Browser Preference (System Dark) ─────────────── */
+/* Applies automatically if the OS is in dark mode, 
+   UNLESS the user has explicitly forced data-theme="light". */
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* ── Ember Dark ──────────────────────────────────────── */
+  :root:not([data-theme="light"]) {
     --background: #131210;
     --foreground: #F0EDE8;
     --muted: #6B6560;
@@ -40,6 +65,7 @@
   }
 }
 
+/* ── 4. Tailwind Configuration ───────────────────────── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -59,22 +85,30 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* ── 5. Base Elements ────────────────────────────────── */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* ── Scrollbar ──────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+/* Scrollbar */
+::-webkit-scrollbar { 
+  width: 6px; 
+  height: 6px; 
+}
+::-webkit-scrollbar-track { 
+  background: transparent; 
+}
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+::-webkit-scrollbar-thumb:hover { 
+  background: var(--muted-foreground); 
+}
 
-/* ── Selection ──────────────────────────────────────────── */
+/* Selection */
 ::selection {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
   color: var(--foreground);
