@@ -1,83 +1,43 @@
 @import "tailwindcss";
 
-:root, [data-theme="light"]{
-  --background: #f8f7f4;
-  --foreground: #1a1a1a;
-  --muted: #6b7280;
-  --muted-foreground: #9ca3af;
-  --border: #e5e7eb;
-  --accent: #4f46e5;
-  --accent-foreground: #ffffff;
-  --card: #ffffff;
-  --card-foreground: #1a1a1a;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #1a1a1a;
-  --sidebar-border: #e5e7eb;
+:root {
+  /* ── Ember Light ─────────────────────────────────────── */
+  --background: #F8F6F3;
+  --foreground: #1A1714;
+  --muted: #6B6560;
+  --muted-foreground: #A39E99;
+  --border: #E5E0DA;
+  --accent: #B84A0E;
+  --accent-foreground: #FFFFFF;
+  --card: #FFFFFF;
+  --card-foreground: #1A1714;
+  --sidebar: #F2EFE9;
+  --sidebar-foreground: #1A1714;
+  --sidebar-border: #E0DBD5;
+  --sidebar-accent: #EAE5DE;
+  --sidebar-accent-foreground: #1A1714;
+  --destructive: #C0392B;
 }
-
-[data-theme="dark"] {
-    --background: #111318;
-    --foreground: #f9fafb;
-    --muted: #6b7280;
-    --muted-foreground: #9ca3af;
-    --border: #374151;
-    --accent: #4f46e5;
-    --accent-foreground: #ffffff;
-    --card: #1f2937;
-    --card-foreground: #f9fafb;
-    --sidebar: #1f2937;
-    --sidebar-foreground: #f9fafb;
-    --sidebar-border: #374151;
-  }
-
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --background: #111318;
-    --foreground: #f9fafb;
-    --muted: #6b7280;
-    --muted-foreground: #9ca3af;
-    --border: #374151;
-    --accent: #4f46e5;
-    --accent-foreground: #ffffff;
-    --card: #1f2937;
-    --card-foreground: #f9fafb;
-    --sidebar: #1f2937;
-    --sidebar-foreground: #f9fafb;
-    --sidebar-border: #374151;
+  :root {
+    /* ── Ember Dark ──────────────────────────────────────── */
+    --background: #131210;
+    --foreground: #F0EDE8;
+    --muted: #6B6560;
+    --muted-foreground: #857F79;
+    --border: #272320;
+    --accent: #B84A0E;
+    --accent-foreground: #FFFFFF;
+    --card: #1C1916;
+    --card-foreground: #F0EDE8;
+    --sidebar: #171512;
+    --sidebar-foreground: #F0EDE8;
+    --sidebar-border: #272320;
+    --sidebar-accent: #222018;
+    --sidebar-accent-foreground: #F0EDE8;
+    --destructive: #C0392B;
   }
-}
-/* ── Manual theme overrides via data-theme attribute ── */
-/* These have higher specificity than :root and override the media query */
-
-html[data-theme="light"] {
-  --background: #f8f7f4;
-  --foreground: #1a1a1a;
-  --muted: #6b7280;
-  --muted-foreground: #9ca3af;
-  --border: #e5e7eb;
-  --accent: #4f46e5;
-  --accent-foreground: #ffffff;
-  --card: #ffffff;
-  --card-foreground: #1a1a1a;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #1a1a1a;
-  --sidebar-border: #e5e7eb;
-}
-
-html[data-theme="dark"] {
-  --background: #111318;
-  --foreground: #f9fafb;
-  --muted: #6b7280;
-  --muted-foreground: #9ca3af;
-  --border: #374151;
-  --accent: #4f46e5;
-  --accent-foreground: #ffffff;
-  --card: #1f2937;
-  --card-foreground: #f9fafb;
-  --sidebar: #1f2937;
-  --sidebar-foreground: #f9fafb;
-  --sidebar-border: #374151;
 }
 
 @theme inline {
@@ -93,6 +53,8 @@ html[data-theme="dark"] {
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -101,4 +63,19 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+/* ── Selection ──────────────────────────────────────────── */
+::selection {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--foreground);
 }

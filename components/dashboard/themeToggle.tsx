@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react';
 import { fetchSegmentPrefetchesUsingDynamicRequest } from 'next/dist/client/components/segment-cache/cache';
 
-const themeToggle = () => {
+const ThemeToggle = () => {
     const [currentTheme, setCurrentTheme] = useState<'light' | 'dark' | null>(null);
     const [icon, setIcon] = useState<React.ReactNode>(null);
 
@@ -41,4 +41,4 @@ const themeToggle = () => {
         )
 }
 
-export default themeToggle;
+export default ThemeToggle;

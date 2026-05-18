@@ -19,8 +19,8 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 	const fileref = React.useRef<HTMLInputElement>(null);
 
 	const [aiLoading, setaiLoading] = useState(false);
-
-	const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+	
+	function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0];
 		if (!file || !editor) return;
 		const url = URL.createObjectURL(file);
@@ -30,7 +30,7 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 			.insertContent(`<p><a href="${url}" target="_blank">📎 ${file.name}</a></p>`)
 			.run();
 		e.target.value = '';
-	};
+	}
 
 	const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
