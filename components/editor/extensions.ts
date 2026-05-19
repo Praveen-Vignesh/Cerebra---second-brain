@@ -69,7 +69,7 @@ export const getExtensions = () => [
 	// ── Tables ──
 	// TableKit bundles Table, TableRow, TableHeader and TableCell.
 	TableKit.configure({
-		table: { resizable: true, HTMLAttributes: { class: 'cerebra-table' } },
+		table: { resizable: true, HTMLAttributes: { class: 'cerebra-table' }, cellMinWidth: 100},
 		tableHeader: { HTMLAttributes: { class: 'cerebra-table-header' } },
 		tableRow: { HTMLAttributes: { class: 'cerebra-table-row' } },
 		tableCell: { HTMLAttributes: { class: 'cerebra-table-cell' } },
@@ -80,6 +80,7 @@ export const getExtensions = () => [
 		persist: true,
 		openClassName: 'cerebra-details-isOpen',
 		HTMLAttributes: { class: 'cerebra-details' },
+		
 	}),
 	DetailsContent,
 	DetailsSummary,

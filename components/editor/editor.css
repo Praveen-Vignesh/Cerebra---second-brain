@@ -201,7 +201,8 @@ html[data-theme="dark"] {
 .tiptap {
   outline: none;
   min-height: 60vh;
-  padding: 2rem 1.25rem 4rem;
+  /* extra left padding leaves a gutter for the drag handle */
+  padding: 2rem 1.25rem 4rem 3rem;
   color: var(--editor-text);
   font-size: 1rem;
   line-height: 1.7;
@@ -619,6 +620,44 @@ h6.cerebra-heading { font-size: 1rem; }
   color: var(--accent-foreground, #fff);
   border-color: transparent;
   opacity: 0.9;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Drag handle
+   ───────────────────────────────────────────────────────── */
+.cerebra-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.5rem;
+  /* pull the handle into the .tiptap left gutter */
+  margin-left: -1.65rem;
+  border-radius: 5px;
+  cursor: grab;
+  color: var(--editor-placeholder);
+  background: transparent;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.cerebra-drag-handle::before {
+  content: '⠿';
+  font-size: 1rem;
+  line-height: 1;
+}
+.cerebra-drag-handle:hover {
+  background: var(--bubble-hover-bg);
+  color: var(--bubble-active-text);
+}
+.cerebra-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Highlight the node currently selected / being dragged */
+.tiptap .ProseMirror-selectednode,
+.tiptap .ProseMirror-selectednoderange {
+  border-radius: 4px;
+  outline: 2px solid var(--bubble-active-bg);
+  outline-offset: 2px;
 }
 
 /* ─────────────────────────────────────────────────────────

@@ -18,6 +18,7 @@ import {
 	Type,
 	Underline,
 	Quote,
+	ChevronRight,
 } from 'lucide-react';
 
 type Props = {
@@ -130,6 +131,15 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 						type="button"
 					>
 						<Quote size={16} />
+					</button>
+
+					<button
+						onClick={() => editor.chain().focus().setDetails().run()}
+						className={btn(editor.isActive('details'))}
+						title="Set Detail"
+						type="button"
+					>
+						<ChevronRight size={16} />
 					</button>
 
 					<button

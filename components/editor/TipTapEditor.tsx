@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import { useEffect, useRef, useState } from 'react';
 
 import dynamic from 'next/dynamic';
+import { DragHandle } from '@tiptap/extension-drag-handle-react';
 import BubbleMenuBar from './BubbleMenuBar';
 import { getExtensions } from './extensions';
 import 'tippy.js/dist/tippy.css';
@@ -56,6 +57,10 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
 	return (
 		<div className="cerebra-editor">
 			{editor && <BubbleMenuBar editor={editor} isDark={false} />}
+
+			<DragHandle editor={editor} nested>
+				<div className="cerebra-drag-handle" aria-label="Drag to move" />
+			</DragHandle>
 
 			<EditorContent editor={editor} className="cerebra-editor-content" />
 

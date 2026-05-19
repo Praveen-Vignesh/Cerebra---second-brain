@@ -1,13 +1,8 @@
+/* eslint-disable react-hooks/refs */
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useState } from 'react';
 import { Editor } from '@tiptap/react';
-import {
-	ChevronRight,
-	Image,
-	Paperclip,
-	SendHorizonal,
-	Sparkles,
-	Table,
-} from 'lucide-react';
+import { Image, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react';
 
 type ToolButton = {
 	icon: React.ReactNode;
@@ -86,11 +81,6 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 			icon: <Table size={16} />,
 			label: 'Insert table',
 			action: handleTable,
-		},
-		{
-			icon: <ChevronRight size={16} />,
-			label: 'Insert toggle block',
-			action: () => editor.chain().focus().setDetails().run(),
 		},
 	];
 
