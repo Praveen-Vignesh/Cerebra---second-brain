@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { Editor } from '@tiptap/react';
-import { Image, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react';
+import {
+	ChevronRight,
+	Image,
+	Paperclip,
+	SendHorizonal,
+	Sparkles,
+	Table,
+} from 'lucide-react';
 
 type ToolButton = {
 	icon: React.ReactNode;
@@ -80,37 +87,42 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 			label: 'Insert table',
 			action: handleTable,
 		},
+		{
+			icon: <ChevronRight size={16} />,
+			label: 'Insert toggle block',
+			action: () => editor.chain().focus().setDetails().run(),
+		},
 	];
 
 	return (
-		<div className="">
+		<div className="cerebra-bottombar">
 			{/* hidden file inputs */}
 
 			<input
 				ref={imageref}
 				type="file"
 				accept="image/*"
-				className=""
+				className="cerebra-hidden-input"
 				onChange={handleImage}
 			/>
 			<input
 				ref={fileref}
 				type="file"
 				accept=".pdf,.doc,.docx,.txt,.csv,.xlsx"
-				className=""
+				className="cerebra-hidden-input"
 				onChange={handleFile}
 			/>
 
 			{/* left cluster — insert tools */}
 
-			<div className="">
+			<div className="cerebra-bottombar-cluster">
 				{leftTools.map((tool) => (
 					<button
 						key={tool.label}
 						type="button"
 						title={tool.label}
 						onClick={tool.action}
-						className=""
+						className="cerebra-bottombar-btn"
 					>
 						{tool.icon}
 					</button>
@@ -119,23 +131,28 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 
 			{/* divider */}
 
-			<div className="" />
+			<div className="cerebra-bottombar-divider" />
 
 			{/* right cluster — actions */}
 
-			<div className="">
+			<div className="cerebra-bottombar-cluster">
 				<button
 					type="button"
 					title="AI Analysis & Suggestions"
 					onClick={handleAiAnalyze}
 					disabled={aiLoading}
-					className=""
+					className="cerebra-bottombar-btn cerebra-bottombar-ai"
 				>
 					<Sparkles size={16} />
 					<span>{aiLoading ? 'Analyzing…' : 'AI Analyze'}</span>
 				</button>
 
-				<button type="button" title="Submit" onClick={handleSubmit} className="">
+				<button
+					type="button"
+					title="Submit"
+					onClick={handleSubmit}
+					className="cerebra-bottombar-btn cerebra-bottombar-save"
+				>
 					<SendHorizonal size={16} />
 					<span>Save</span>
 				</button>

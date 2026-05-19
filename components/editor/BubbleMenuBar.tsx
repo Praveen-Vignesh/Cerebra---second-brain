@@ -55,6 +55,8 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 	const currentFontFamily = editor.getAttributes('textStyle').fontFamily || '';
 	const currentFontSize = editor.getAttributes('textStyle').fontSize || '';
 
+	const btn = (active: boolean) => `cerebra-bubble-btn${active ? ' is-active' : ''}`;
+
 	return (
 		<BubbleMenu
 			editor={editor}
@@ -75,12 +77,12 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 				},
 			}}
 		>
-			<div className="">
+			<div className="cerebra-bubble-menu">
 				{/* ── ROW 1: Formatting, Alignment, & Lists ── */}
-				<div className="">
+				<div className="cerebra-bubble-row">
 					<button
 						onClick={() => editor.chain().focus().toggleBold().run()}
-						className=""
+						className={btn(editor.isActive('bold'))}
 						title="Bold"
 						type="button"
 					>
@@ -88,7 +90,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 					</button>
 					<button
 						onClick={() => editor.chain().focus().toggleItalic().run()}
-						className=""
+						className={btn(editor.isActive('italic'))}
 						title="Italic"
 						type="button"
 					>
@@ -96,7 +98,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 					</button>
 					<button
 						onClick={() => editor.chain().focus().toggleStrike().run()}
-						className=""
+						className={btn(editor.isActive('strike'))}
 						title="Strikethrough"
 						type="button"
 					>
@@ -105,7 +107,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 
 					<button
 						onClick={() => editor.chain().focus().toggleUnderline().run()}
-						className=""
+						className={btn(editor.isActive('underline'))}
 						title="Underline"
 						type="button"
 					>
@@ -114,7 +116,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 
 					<button
 						onClick={() => editor.chain().focus().toggleCode().run()}
-						className=""
+						className={btn(editor.isActive('code'))}
 						title="Code"
 						type="button"
 					>
@@ -123,7 +125,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 
 					<button
 						onClick={() => editor.chain().focus().setBlockquote().run()}
-						className=""
+						className={btn(editor.isActive('blockquote'))}
 						title="Blockquote"
 						type="button"
 					>
@@ -131,36 +133,36 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 					</button>
 
 					<button
-						className=""
+						className={btn(editor.isActive('subscript'))}
 						type="button"
 						onClick={() => {
 							editor.chain().focus().toggleSubscript().run();
 						}}
 						title="Subscript"
 					>
-						<span className="">
+						<span className="cerebra-bubble-script">
 							X<sub>2</sub>
 						</span>
 					</button>
 
 					<button
-						className=""
+						className={btn(editor.isActive('superscript'))}
 						type="button"
 						onClick={() => {
 							editor.chain().focus().toggleSuperscript().run();
 						}}
 						title="Superscript"
 					>
-						<span className="">
+						<span className="cerebra-bubble-script">
 							X<sup>2</sup>
 						</span>
 					</button>
 
-					<div className="" />
+					<div className="cerebra-bubble-divider" />
 
 					<button
 						onClick={() => editor.chain().focus().setTextAlign('left').run()}
-						className=""
+						className={btn(editor.isActive({ textAlign: 'left' }))}
 						title="Align Left"
 						type="button"
 					>
@@ -168,7 +170,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 					</button>
 					<button
 						onClick={() => editor.chain().focus().setTextAlign('center').run()}
-						className=""
+						className={btn(editor.isActive({ textAlign: 'center' }))}
 						title="Align Center"
 						type="button"
 					>
@@ -176,19 +178,19 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 					</button>
 					<button
 						onClick={() => editor.chain().focus().setTextAlign('right').run()}
-						className=""
+						className={btn(editor.isActive({ textAlign: 'right' }))}
 						title="Align Right"
 						type="button"
 					>
 						<AlignRight size={16} />
 					</button>
 
-					<div className="" />
+					<div className="cerebra-bubble-divider" />
 
 					{/* Corrected List Buttons */}
 					<button
 						onClick={() => editor.chain().focus().toggleOrderedList().run()}
-						className=""
+						className={btn(editor.isActive('orderedList'))}
 						title="Numbered List"
 						type="button"
 					>
@@ -197,7 +199,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 
 					<button
 						onClick={() => editor.chain().focus().toggleBulletList().run()}
-						className=""
+						className={btn(editor.isActive('bulletList'))}
 						title="Bullet List"
 						type="button"
 					>
@@ -206,10 +208,10 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 				</div>
 
 				{/* ── ROW 2: Typography & Highlighting ── */}
-				<div className="">
+				<div className="cerebra-bubble-row">
 					{/* ── Font Family ── */}
-					<div className="">
-						<Type size={14} className="" />
+					<div className="cerebra-bubble-group">
+						<Type size={14} className="cerebra-bubble-group-icon" />
 						<select
 							onChange={(e) => {
 								if (e.target.value) {
@@ -219,7 +221,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 								}
 							}}
 							value={currentFontFamily}
-							className=""
+							className="cerebra-bubble-select"
 						>
 							<option value="">Default Font</option>
 							{FONT_FAMILIES.map((font) => (
@@ -231,7 +233,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 					</div>
 
 					{/* ── Font Size ── */}
-					<div className="">
+					<div className="cerebra-bubble-group">
 						<select
 							onChange={(e) => {
 								if (e.target.value) {
@@ -241,7 +243,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 								}
 							}}
 							value={currentFontSize}
-							className=""
+							className="cerebra-bubble-select"
 						>
 							<option value="">Size</option>
 							{FONT_SIZES.map((size) => (
@@ -253,29 +255,30 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 					</div>
 
 					{/* ── Text Color ── */}
-					<div className="">
-						<Palette size={14} className="" />
+					<div className="cerebra-bubble-group">
+						<Palette size={14} className="cerebra-bubble-group-icon" />
 						<input
 							type="color"
 							onInput={(e) =>
 								editor.chain().focus().setColor(e.currentTarget.value).run()
 							}
 							value={currentColor}
-							className=""
+							className="cerebra-bubble-color"
 							title="Text Color"
 						/>
 					</div>
 
-					<div className="" />
+					<div className="cerebra-bubble-divider" />
 
 					{/* ── Highlight Colors ── */}
-					<div className="">
+					<div className="cerebra-bubble-swatches">
 						{colors.map(({ name, value, label }) => {
 							const isActive = editor.isActive('highlight', { color: value });
 							return (
 								<button
 									key={name}
-									className=""
+									className={`cerebra-bubble-swatch${isActive ? ' is-active' : ''}`}
+									style={{ background: value }}
 									onClick={() => {
 										if (isActive) {
 											editor.chain().focus().unsetHighlight().run();
@@ -295,7 +298,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 
 						{hasHighlight && (
 							<button
-								className=""
+								className="cerebra-bubble-swatch-clear"
 								onClick={() => editor.chain().focus().unsetHighlight().run()}
 								title="Remove all highlight"
 								type="button"

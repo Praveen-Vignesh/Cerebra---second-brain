@@ -181,3 +181,459 @@ html[data-theme="dark"] {
   outline: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 0.125rem;
 }
+
+/* ─────────────────────────────────────────────────────────
+   Editor shell
+   ───────────────────────────────────────────────────────── */
+.cerebra-editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 820px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.cerebra-editor-content {
+  flex: 1;
+}
+
+.tiptap {
+  outline: none;
+  min-height: 60vh;
+  padding: 2rem 1.25rem 4rem;
+  color: var(--editor-text);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.tiptap > * + * {
+  margin-top: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Node styles
+   ───────────────────────────────────────────────────────── */
+
+/* Headings */
+.cerebra-heading {
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.6em;
+}
+h1.cerebra-heading { font-size: 1.85rem; }
+h2.cerebra-heading { font-size: 1.45rem; }
+h3.cerebra-heading { font-size: 1.2rem; }
+h4.cerebra-heading,
+h5.cerebra-heading,
+h6.cerebra-heading { font-size: 1rem; }
+
+/* Links */
+.cerebra-link {
+  color: var(--accent, #4f46e5);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.cerebra-link:hover {
+  opacity: 0.8;
+}
+
+/* Inline code */
+.tiptap code {
+  background: var(--editor-code-bg);
+  border: 1px solid var(--editor-code-border);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-size: 0.875em;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/* Code block */
+.cerebra-code-block {
+  background: var(--editor-code-bg);
+  border: 1px solid var(--editor-code-border);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.cerebra-code-block code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/* Blockquote */
+.tiptap blockquote {
+  border-left: 3px solid var(--accent, #4f46e5);
+  padding-left: 1rem;
+  margin-left: 0;
+  color: var(--editor-text);
+  opacity: 0.85;
+  font-style: italic;
+}
+
+/* Lists */
+.tiptap ul,
+.tiptap ol {
+  padding-left: 1.5rem;
+}
+.tiptap ul { list-style: disc; }
+.tiptap ol { list-style: decimal; }
+.tiptap li {
+  margin: 0.2rem 0;
+}
+.tiptap li p {
+  margin: 0;
+}
+
+/* Horizontal rule */
+.tiptap hr {
+  border: none;
+  border-top: 1px solid var(--editor-table-border);
+  margin: 1.5rem 0;
+}
+
+/* Highlight */
+.tiptap mark {
+  border-radius: 3px;
+  padding: 0.05em 0.15em;
+  box-decoration-break: clone;
+}
+
+/* Tables */
+.cerebra-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+  overflow: hidden;
+  table-layout: fixed;
+}
+.cerebra-table-cell,
+.cerebra-table-header {
+  border: 1px solid var(--editor-table-border);
+  padding: 0.45rem 0.6rem;
+  vertical-align: top;
+  position: relative;
+}
+.cerebra-table-header {
+  background: var(--editor-table-header-bg);
+  font-weight: 600;
+  text-align: left;
+}
+.cerebra-table .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bubble-active-bg);
+  pointer-events: none;
+}
+.cerebra-table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent, #4f46e5);
+  cursor: col-resize;
+}
+
+/* Details / toggle blocks
+   DOM (from the extension's NodeView):
+   div.cerebra-details > button(toggle) + div(content) > summary + div[detailsContent] */
+.cerebra-details {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border: 1px solid var(--editor-details-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.75rem 0;
+}
+
+/* Toggle button — rendered empty by the extension, so we draw the caret here */
+.cerebra-details > button {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--muted-foreground, #888);
+}
+.cerebra-details > button:hover {
+  background: var(--bubble-hover-bg);
+}
+.cerebra-details > button::before {
+  content: '▶';
+  font-size: 0.6rem;
+  transition: transform 0.15s ease;
+}
+.cerebra-details.cerebra-details-isOpen > button::before {
+  transform: rotate(90deg);
+}
+
+/* Content column */
+.cerebra-details > div {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Summary — strip the native list-item marker that made it look like a list */
+.cerebra-details summary {
+  display: block;
+  list-style: none;
+  font-weight: 600;
+  cursor: text;
+  outline: none;
+}
+.cerebra-details summary::-webkit-details-marker,
+.cerebra-details summary::marker {
+  display: none;
+}
+
+.cerebra-details [data-type='detailsContent'] {
+  margin-top: 0.35rem;
+}
+.cerebra-details [data-type='detailsContent'] > * {
+  margin: 0.25rem 0;
+}
+
+/* Images */
+.cerebra-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.cerebra-image.ProseMirror-selectednode {
+  outline: 2px solid var(--accent, #4f46e5);
+}
+
+/* Placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--editor-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Bubble menu
+   ───────────────────────────────────────────────────────── */
+.cerebra-bubble-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: var(--bubble-bg);
+  border: 1px solid var(--bubble-border);
+  border-radius: 10px;
+  box-shadow: var(--bubble-shadow);
+  padding: 0.35rem;
+}
+
+.cerebra-bubble-row {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+}
+
+.cerebra-bubble-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 0.3rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--bubble-text);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.cerebra-bubble-btn:hover {
+  background: var(--bubble-hover-bg);
+}
+.cerebra-bubble-btn.is-active {
+  background: var(--bubble-active-bg);
+  color: var(--bubble-active-text);
+}
+
+.cerebra-bubble-script {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.cerebra-bubble-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 0.1rem 0.25rem;
+  background: var(--bubble-divider);
+}
+
+.cerebra-bubble-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.25rem;
+}
+.cerebra-bubble-group-icon {
+  color: var(--bubble-text);
+  flex-shrink: 0;
+}
+
+.cerebra-bubble-select {
+  background: transparent;
+  color: var(--bubble-text);
+  border: 1px solid var(--bubble-border);
+  border-radius: 6px;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  height: 28px;
+}
+.cerebra-bubble-select:focus {
+  outline: none;
+  border-color: var(--bubble-active-text);
+}
+
+.cerebra-bubble-color {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--bubble-border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cerebra-bubble-swatches {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.cerebra-bubble-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--bubble-border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+.cerebra-bubble-swatch:hover {
+  transform: scale(1.15);
+}
+.cerebra-bubble-swatch.is-active {
+  outline: 2px solid var(--bubble-active-text);
+  outline-offset: 1px;
+}
+.cerebra-bubble-swatch-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--bubble-border);
+  background: var(--bubble-hover-bg);
+  color: var(--bubble-text);
+  cursor: pointer;
+  padding: 0;
+}
+.cerebra-bubble-swatch-clear:hover {
+  color: var(--bubble-active-text);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Bottom bar
+   ───────────────────────────────────────────────────────── */
+.cerebra-bottombar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--editor-footer-border);
+}
+
+.cerebra-hidden-input {
+  display: none;
+}
+
+.cerebra-bottombar-cluster {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.cerebra-bottombar-cluster:last-child {
+  margin-left: auto;
+}
+
+.cerebra-bottombar-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--editor-footer-border);
+}
+
+.cerebra-bottombar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 32px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--toggle-btn-border);
+  border-radius: 7px;
+  background: var(--toggle-btn-bg);
+  color: var(--toggle-btn-color);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.cerebra-bottombar-btn:hover {
+  background: var(--toggle-btn-hover-bg);
+  color: var(--toggle-btn-hover-color);
+  border-color: var(--toggle-btn-hover-border);
+}
+.cerebra-bottombar-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cerebra-bottombar-save {
+  background: var(--accent, #4f46e5);
+  color: var(--accent-foreground, #fff);
+  border-color: transparent;
+}
+.cerebra-bottombar-save:hover {
+  background: var(--accent, #4f46e5);
+  color: var(--accent-foreground, #fff);
+  border-color: transparent;
+  opacity: 0.9;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Emoji picker overlay
+   ───────────────────────────────────────────────────────── */
+.cerebra-emoji-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+.cerebra-emoji-popover {
+  box-shadow: var(--bubble-shadow);
+  border-radius: 12px;
+}

@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import BubbleMenuBar from './BubbleMenuBar';
 import { getExtensions } from './extensions';
 import 'tippy.js/dist/tippy.css';
+import './editor.css';
 import Bottombar from './bottomBar';
 
 const EmojiPicker = dynamic(() => import('@emoji-mart/react').then((m) => m.default), {
@@ -53,16 +54,19 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
 	if (!editor) return null;
 
 	return (
-		<div className="">
+		<div className="cerebra-editor">
 			{editor && <BubbleMenuBar editor={editor} isDark={false} />}
 
-			<EditorContent editor={editor} />
+			<EditorContent editor={editor} className="cerebra-editor-content" />
 
 			<Bottombar editor={editor} />
 
 			{showEmojiPicker && (
-				<div className="" onClick={() => setShowEmojiPicker(false)}>
-					<div onClick={(e) => e.stopPropagation()}>
+				<div className="cerebra-emoji-overlay" onClick={() => setShowEmojiPicker(false)}>
+					<div
+						className="cerebra-emoji-popover"
+						onClick={(e) => e.stopPropagation()}
+					>
 						<EmojiPicker onEmojiSelect={handleEmojiSelect} theme="dark" />
 					</div>
 				</div>

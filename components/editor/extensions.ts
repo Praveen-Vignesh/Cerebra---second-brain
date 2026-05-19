@@ -1,167 +1,81 @@
-// extensions/index.ts
+// components/editor/extensions.ts
 import { Extension } from '@tiptap/core';
+import { NodeSelection } from '@tiptap/pm/state';
 import StarterKit from '@tiptap/starter-kit';
-import Heading from '@tiptap/extension-heading';
-import Image from '@tiptap/extension-image';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
-import { common, createLowlight } from 'lowlight';
 import { Details, DetailsContent, DetailsSummary } from '@tiptap/extension-details';
 import Typography from '@tiptap/extension-typography';
 import { TableKit } from '@tiptap/extension-table';
-import { ListKeymap, ListKit } from '@tiptap/extension-list';
 import { TextStyleKit } from '@tiptap/extension-text-style';
-import FloatingMenu from '@tiptap/extension-floating-menu';
+import TextAlign from '@tiptap/extension-text-align';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
-import Text from '@tiptap/extension-text';
-import TextAlign from '@tiptap/extension-text-align';
+import { common, createLowlight } from 'lowlight';
 
 const lowlight = createLowlight(common);
 
-const TableControls = Extension.create({
-	name: 'tableControls',
-	priority: 1001,
-
+// When the cursor sits at the start of a block directly after a table,
+// the first Backspace selects the table (ProseMirror's intended
+// selectNodeBackward step, which is unreliable for tables); the next
+// Backspace falls through to the default deleteSelection and removes it.
+const TableBackspace = Extension.create({
+	name: 'tableBackspace',
+	priority: 1000,
 	addKeyboardShortcuts() {
 		return {
-			// ── Tab: exit table on last cell instead of adding new row ──
-			Tab: () => {
-				if (!this.editor.isActive('table')) return false;
+			Backspace: ({ editor }) => {
+				const { state, view } = editor;
+				const { selection } = state;
+				if (!selection.empty) return false;
 
-				const { state } = this.editor;
-				const { $anchor } = state.selection;
+				const { $from } = selection;
+				if ($from.depth === 0 || $from.parentOffset !== 0) return false;
 
-				// walk up to find table and cell depths
-				let tableDepth = -1;
-				let cellDepth = -1;
+				const posBeforeBlock = $from.before($from.depth);
+				const nodeBefore = state.doc.resolve(posBeforeBlock).nodeBefore;
+				if (!nodeBefore || nodeBefore.type.name !== 'table') return false;
 
-				for (let d = $anchor.depth; d > 0; d--) {
-					const name = $anchor.node(d).type.name;
-					if (name === 'table') {
-						tableDepth = d;
-						break;
-					}
-					if (name === 'tableCell' || name === 'tableHeader') cellDepth = d;
-				}
-
-				if (tableDepth === -1 || cellDepth === -1) return false;
-
-				const afterCurrentCell = $anchor.after(cellDepth);
-				const afterTable = $anchor.after(tableDepth);
-
-				// scan for any cell nodes between here and end of table
-				let hasNextCell = false;
-				state.doc.nodesBetween(afterCurrentCell, afterTable, (node) => {
-					if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
-						hasNextCell = true;
-						return false; // stop traversal
-					}
-				});
-
-				if (!hasNextCell) {
-					// last cell → move cursor to the paragraph after the table
-					this.editor.commands.setTextSelection(afterTable);
-					return true; // swallow Tab so TableKit never runs
-				}
-
-				return false; // not last cell → let TableKit move to next cell normally
-			},
-
-			// ── Backspace: delete table from outside it ──
-			Backspace: () => {
-				const { state } = this.editor;
-				const { $anchor, empty } = state.selection;
-
-				if (!empty || this.editor.isActive('table')) return false;
-
-				// ── Case 1: gap cursor sitting directly after a table ──
-				const nodeBefore = $anchor.nodeBefore;
-				if (nodeBefore?.type.name === 'table') {
-					this.editor
-						.chain()
-						.focus()
-						.deleteRange({
-							from: $anchor.pos - nodeBefore.nodeSize,
-							to: $anchor.pos,
-						})
-						.run();
-					return true;
-				}
-
-				// ── Case 2: cursor is inside an empty paragraph that follows a table ──
-				// $anchor.before(1) gives the position just before the top-level
-				// block node (the paragraph), letting us inspect what's before it
-				const isEmptyParagraph =
-					$anchor.parent.type.name === 'paragraph' && $anchor.parent.content.size === 0;
-
-				if (isEmptyParagraph && $anchor.depth >= 1) {
-					const posBeforeParagraph = $anchor.before(1);
-
-					if (posBeforeParagraph > 0) {
-						const $resolved = state.doc.resolve(posBeforeParagraph);
-						const nodeBeforePara = $resolved.nodeBefore;
-
-						if (nodeBeforePara?.type.name === 'table') {
-							this.editor
-								.chain()
-								.focus()
-								.deleteRange({
-									from: posBeforeParagraph - nodeBeforePara.nodeSize,
-									to: posBeforeParagraph,
-								})
-								.run();
-							return true;
-						}
-					}
-				}
-
-				return false;
+				const tablePos = posBeforeBlock - nodeBefore.nodeSize;
+				view.dispatch(
+					state.tr.setSelection(NodeSelection.create(state.doc, tablePos)),
+				);
+				return true;
 			},
 		};
 	},
 });
 
 export const getExtensions = () => [
-	TableControls, // ← must be first so priority:1001 wins over TableKit
-	StarterKit.configure({ codeBlock: false }),
-	Heading.configure({
-		HTMLAttributes: { class: 'cerebra-heading' },
+
+	TableBackspace,
+
+	StarterKit.configure({
+		codeBlock: false,
+		heading: { HTMLAttributes: { class: 'cerebra-heading' } },
+		link: { openOnClick: true, HTMLAttributes: { class: 'cerebra-link' } },
 	}),
+
+	Placeholder.configure({ placeholder: "Write something, or press '/' for commands…" }),
+
 	CodeBlockLowlight.configure({
 		lowlight,
 		defaultLanguage: 'plaintext',
 		HTMLAttributes: { class: 'cerebra-code-block' },
 	}),
-	Image.configure({
-		resize: {
-			enabled: true,
-			directions: ['top', 'bottom', 'left', 'right'], // can be any direction or diagonal combination
-			minWidth: 50,
-			minHeight: 50,
-			alwaysPreserveAspectRatio: true,
-		},
-		HTMLAttributes: { class: 'cerebra-image' },
-		inline: true,
-	}),
-	Link.configure({
-		openOnClick: true,
-		HTMLAttributes: { class: 'cerebra-link' },
-	}),
-	Highlight.configure({ multicolor: true }),
-	Placeholder.configure({ placeholder: "Write something, or press '/' for commands…" }),
+
+	// ── Tables ──
+	// TableKit bundles Table, TableRow, TableHeader and TableCell.
 	TableKit.configure({
-		table: {
-			resizable: true,
-			HTMLAttributes: { class: 'cerebra-table' },
-		},
+		table: { resizable: true, HTMLAttributes: { class: 'cerebra-table' } },
 		tableHeader: { HTMLAttributes: { class: 'cerebra-table-header' } },
 		tableRow: { HTMLAttributes: { class: 'cerebra-table-row' } },
 		tableCell: { HTMLAttributes: { class: 'cerebra-table-cell' } },
 	}),
 
+	// ── Collapsible details / toggle blocks ──
 	Details.configure({
 		persist: true,
 		openClassName: 'cerebra-details-isOpen',
@@ -170,15 +84,24 @@ export const getExtensions = () => [
 	DetailsContent,
 	DetailsSummary,
 
-	TextStyleKit.configure({
-		fontSize: {},
+	// ── Media ──
+	Image.configure({
+		resize: {
+			enabled: true,
+			directions: ['top', 'bottom', 'left', 'right'],
+			minWidth: 50,
+			minHeight: 50,
+			alwaysPreserveAspectRatio: true,
+		},
+		HTMLAttributes: { class: 'cerebra-image' },
+		inline: true,
 	}),
-	Text,
+
+	// ── Text styling ──
+	// TextStyleKit bundles TextStyle, Color, FontFamily, FontSize, etc.
+	Highlight.configure({ multicolor: true }),
 	TextStyleKit,
 	Typography,
-	ListKeymap,
-	ListKit,
-	FloatingMenu,
 	TextAlign.configure({ types: ['paragraph', 'heading', 'listItem'] }),
 	Superscript,
 	Subscript,
