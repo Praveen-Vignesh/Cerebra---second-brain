@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/refs */
 /* eslint-disable jsx-a11y/alt-text */
 import React, { useState } from 'react';
-import { Editor } from '@tiptap/react';
+import { Editor, type JSONContent } from '@tiptap/react';
 import { Image, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react';
 
 type ToolButton = {
@@ -10,13 +10,23 @@ type ToolButton = {
 	action: () => void;
 };
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 interface BottomBarProps {
 	editor: Editor;
-	onSubmit?: (content: string) => void;
+	onSave?: (json: JSONContent) => void | Promise<void>;
+	saveStatus?: SaveStatus;
 	onAiAnalysis?: (content: string) => Promise<void>;
 }
 
-const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
+const SAVE_LABEL: Record<SaveStatus, string> = {
+	idle: 'Save',
+	saving: 'Saving…',
+	saved: 'Saved',
+	error: 'Retry',
+};
+
+const Bottombar = ({ editor, onSave, saveStatus = 'idle', onAiAnalysis }: BottomBarProps) => {
 	const imageref = React.useRef<HTMLInputElement>(null);
 	const fileref = React.useRef<HTMLInputElement>(null);
 
@@ -60,10 +70,6 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 
 	const handleTable = () => {
 		editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-	};
-
-	const handleSubmit = () => {
-		onSubmit?.(editor.getHTML());
 	};
 
 	const leftTools: ToolButton[] = [
@@ -139,12 +145,14 @@ const Bottombar = ({ editor, onSubmit, onAiAnalysis }: BottomBarProps) => {
 
 				<button
 					type="button"
-					title="Submit"
-					onClick={handleSubmit}
+					title="Save"
+					onClick={() => onSave?.(editor.getJSON())}
+					disabled={saveStatus === 'saving'}
+					data-status={saveStatus}
 					className="cerebra-bottombar-btn cerebra-bottombar-save"
 				>
 					<SendHorizonal size={16} />
-					<span>Save</span>
+					<span>{SAVE_LABEL[saveStatus]}</span>
 				</button>
 			</div>
 		</div>

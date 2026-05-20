@@ -21,6 +21,7 @@ const lowlight = createLowlight(common);
 // the first Backspace selects the table (ProseMirror's intended
 // selectNodeBackward step, which is unreliable for tables); the next
 // Backspace falls through to the default deleteSelection and removes it.
+
 const TableBackspace = Extension.create({
 	name: 'tableBackspace',
 	priority: 1000,

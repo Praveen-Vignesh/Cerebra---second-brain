@@ -1,7 +1,7 @@
 'use client';
 
-import { useEditor, EditorContent } from '@tiptap/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEditor, EditorContent, type JSONContent } from '@tiptap/react';
+import { useEffect, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 import { DragHandle } from '@tiptap/extension-drag-handle-react';
@@ -15,25 +15,28 @@ const EmojiPicker = dynamic(() => import('@emoji-mart/react').then((m) => m.defa
 	ssr: false,
 });
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 type Props = {
-	initialContent?: string;
-	onChange?: (html: string) => void;
-	placeholder?: string;
+	initialContent?: JSONContent;
+	onChange?: (json: JSONContent) => void;
+	onSave?: (json: JSONContent) => void | Promise<void>;
+	saveStatus?: SaveStatus;
 };
 
-export default function TipTapEditor({ initialContent, onChange, placeholder }: Props) {
+export default function TipTapEditor({ initialContent, onChange, onSave, saveStatus }: Props) {
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
 	const editor = useEditor({
 		extensions: getExtensions(),
-		content: initialContent || '',
+		content: initialContent ?? null,
 		editorProps: {
 			attributes: {
 				spellcheck: 'true',
 			},
 		},
 		onUpdate({ editor }) {
-			onChange?.(editor.getHTML());
+			onChange?.(editor.getJSON());
 		},
 		immediatelyRender: false,
 	});
@@ -64,7 +67,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
 
 			<EditorContent editor={editor} className="cerebra-editor-content" />
 
-			<Bottombar editor={editor} />
+			<Bottombar editor={editor} onSave={onSave} saveStatus={saveStatus} />
 
 			{showEmojiPicker && (
 				<div className="cerebra-emoji-overlay" onClick={() => setShowEmojiPicker(false)}>
