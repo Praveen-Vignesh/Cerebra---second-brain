@@ -19,12 +19,19 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 type Props = {
 	initialContent?: JSONContent;
+	noteId?: string;
 	onChange?: (json: JSONContent) => void;
 	onSave?: (json: JSONContent) => void | Promise<void>;
 	saveStatus?: SaveStatus;
 };
 
-export default function TipTapEditor({ initialContent, onChange, onSave, saveStatus }: Props) {
+export default function TipTapEditor({
+	initialContent,
+	noteId,
+	onChange,
+	onSave,
+	saveStatus,
+}: Props) {
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
 	const editor = useEditor({
@@ -67,7 +74,7 @@ export default function TipTapEditor({ initialContent, onChange, onSave, saveSta
 
 			<EditorContent editor={editor} className="cerebra-editor-content" />
 
-			<Bottombar editor={editor} onSave={onSave} saveStatus={saveStatus} />
+			<Bottombar editor={editor} noteId={noteId} onSave={onSave} saveStatus={saveStatus} />
 
 			{showEmojiPicker && (
 				<div className="cerebra-emoji-overlay" onClick={() => setShowEmojiPicker(false)}>

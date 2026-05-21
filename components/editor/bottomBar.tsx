@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Editor, type JSONContent } from '@tiptap/react';
 import { Image, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react';
+import { uploadAttachment } from '@/utils/upload';
 
 type ToolButton = {
 	icon: React.ReactNode;
@@ -14,6 +15,7 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface BottomBarProps {
 	editor: Editor;
+	noteId?: string;
 	onSave?: (json: JSONContent) => void | Promise<void>;
 	saveStatus?: SaveStatus;
 	onAiAnalysis?: (content: string) => Promise<void>;
@@ -26,37 +28,60 @@ const SAVE_LABEL: Record<SaveStatus, string> = {
 	error: 'Retry',
 };
 
-const Bottombar = ({ editor, onSave, saveStatus = 'idle', onAiAnalysis }: BottomBarProps) => {
+const Bottombar = ({
+	editor,
+	noteId,
+	onSave,
+	saveStatus = 'idle',
+	onAiAnalysis,
+}: BottomBarProps) => {
 	const imageref = React.useRef<HTMLInputElement>(null);
 	const fileref = React.useRef<HTMLInputElement>(null);
 
 	const [aiLoading, setaiLoading] = useState(false);
-	
-	function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-		const file = e.target.files?.[0];
-		if (!file || !editor) return;
-		const url = URL.createObjectURL(file);
-		editor
-			.chain()
-			.focus()
-			.insertContent(`<p><a href="${url}" target="_blank">📎 ${file.name}</a></p>`)
-			.run();
-		e.target.value = '';
-	}
+	const [uploading, setUploading] = useState(false);
 
-	const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+	async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0];
-		if (!file || !editor) return;
-		const reader = new FileReader();
-		reader.onload = () => {
+		e.target.value = '';
+		if (!file || !editor || !noteId) return;
+		setUploading(true);
+		try {
+			const url = await uploadAttachment(file, noteId);
 			editor
 				.chain()
 				.focus()
-				.setImage({ src: reader.result as string })
+				.insertContent({
+					type: 'paragraph',
+					content: [
+						{
+							type: 'text',
+							marks: [{ type: 'link', attrs: { href: url, target: '_blank' } }],
+							text: `📎 ${file.name}`,
+						},
+					],
+				})
 				.run();
-		};
-		reader.readAsDataURL(file);
+		} catch (err) {
+			console.error('file upload failed:', err);
+		} finally {
+			setUploading(false);
+		}
+	}
+
+	const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
 		e.target.value = '';
+		if (!file || !editor || !noteId) return;
+		setUploading(true);
+		try {
+			const url = await uploadAttachment(file, noteId);
+			editor.chain().focus().setImage({ src: url }).run();
+		} catch (err) {
+			console.error('image upload failed:', err);
+		} finally {
+			setUploading(false);
+		}
 	};
 
 	const handleAiAnalyze = async () => {
@@ -116,8 +141,9 @@ const Bottombar = ({ editor, onSave, saveStatus = 'idle', onAiAnalysis }: Bottom
 					<button
 						key={tool.label}
 						type="button"
-						title={tool.label}
+						title={uploading ? 'Uploading…' : tool.label}
 						onClick={tool.action}
+						disabled={uploading}
 						className="cerebra-bottombar-btn"
 					>
 						{tool.icon}

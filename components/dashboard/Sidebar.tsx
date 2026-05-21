@@ -8,7 +8,6 @@ import {
 	Zap,
 	Layers,
 	FolderKanban,
-	BarChart2,
 	Bookmark,
 	Mail,
 	Search,
@@ -27,11 +26,10 @@ interface SidebarProps {
 const navigation = [
 	{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
 	{ name: 'Notes', href: '/notes', icon: FileText },
-	{ name: 'Graph', href: '/graph', icon: Share2 },
+	{ name: 'Knowledge Base', href: '/graph', icon: Share2 },
 	{ name: 'Insta Dump', href: '/dump', icon: Zap },
 	{ name: 'Flashcards', href: '/flashcards', icon: Layers },
 	{ name: 'Projects', href: '/projects', icon: FolderKanban },
-	{ name: 'Knowledge Gaps', href: '/gaps', icon: BarChart2 },
 	{ name: 'Resources', href: '/resources', icon: Bookmark },
 	{ name: 'Email', href: '/email', icon: Mail },
 ];

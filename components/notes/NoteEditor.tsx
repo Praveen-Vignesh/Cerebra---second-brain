@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { JSONContent } from '@tiptap/react';
 import TipTapEditor from '@/components/editor/TipTapEditor';
 import { saveNote } from '@/actions/notes';
@@ -38,6 +38,31 @@ export default function NoteEditor({ noteId, initialTitle, initialContent }: Pro
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [title, content]);
 
+	// Flush on tab hide. Listener rebinds on every change so it always sees fresh state.
+	useEffect(() => {
+		const onHide = () => {
+			if (document.visibilityState !== 'hidden') return;
+			if (title === initialTitle && content === initialContent) return;
+			save(content, false);
+		};
+		document.addEventListener('visibilitychange', onHide);
+		return () => document.removeEventListener('visibilitychange', onHide);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [title, content]);
+
+	// Flush on unmount (e.g. navigating to another route).
+	// Uses a ref because the cleanup runs once, after state has changed many times.
+	const latestRef = useRef({ title, content });
+	latestRef.current = { title, content };
+	useEffect(() => {
+		return () => {
+			const { title, content } = latestRef.current;
+			if (title === initialTitle && content === initialContent) return;
+			void saveNote(noteId, title, content, { createVersion: false });
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	return (
 		<div className="cerebra-note-page">
 			<input
@@ -49,6 +74,7 @@ export default function NoteEditor({ noteId, initialTitle, initialContent }: Pro
 			/>
 			<TipTapEditor
 				initialContent={initialContent}
+				noteId={noteId}
 				onChange={setContent}
 				onSave={(json) => save(json, true)}
 				saveStatus={status}
