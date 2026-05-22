@@ -40,7 +40,6 @@ export async function saveNote(
 	content: JSONContent,
 	options: SaveOptions = {}
 ): Promise<SaveResult> {
-	// Break the RSC client-reference wrapper so we can walk the tree on the server.
 	const safeContent: JSONContent = JSON.parse(JSON.stringify(content));
 
 	const supabase = await createClient();

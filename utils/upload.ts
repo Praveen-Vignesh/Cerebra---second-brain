@@ -4,17 +4,16 @@ export const ATTACHMENT_BUCKET = 'note-attachments';
 
 export async function uploadAttachment(file: File, noteId: string): Promise<string> {
 	const supabase = createClient();
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
+	const {data: { user }} = await supabase.auth.getUser();
 	if (!user) throw new Error('Not authenticated');
 
-	const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-	const path = `${user.id}/${noteId}/${crypto.randomUUID()}-${safeName}`;
+	const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_'); //Replaces all other characters except the whitelisted ones with '-'
+	const path = `${user.id}/${noteId}/${crypto.randomUUID()}-${safeName}`; //Creata a path name for the file upload
 
-	const { error } = await supabase.storage.from(ATTACHMENT_BUCKET).upload(path, file);
+	const { error } = await supabase.storage.from('note-attachments').upload(path, file);
 	if (error) throw error;
 
-	const { data } = supabase.storage.from(ATTACHMENT_BUCKET).getPublicUrl(path);
+	const { data } = supabase.storage.from('note-attachments').getPublicUrl(path);
+	
 	return data.publicUrl;
 }

@@ -20,7 +20,8 @@ export default function NoteEditor({ noteId, initialTitle, initialContent }: Pro
 
 	async function save(contentToSave: JSONContent, createVersion: boolean) {
 		setStatus('saving');
-		const result = await saveNote(noteId, title, contentToSave, { createVersion });
+		const cleanedContent: JSONContent = JSON.parse(JSON.stringify(content));
+		const result = await saveNote(noteId, title, cleanedContent, { createVersion });
 		if (result.ok) {
 			setStatus('saved');
 			setTimeout(() => setStatus('idle'), 2000);
@@ -53,6 +54,7 @@ export default function NoteEditor({ noteId, initialTitle, initialContent }: Pro
 	// Flush on unmount (e.g. navigating to another route).
 	// Uses a ref because the cleanup runs once, after state has changed many times.
 	const latestRef = useRef({ title, content });
+	// eslint-disable-next-line react-hooks/refs
 	latestRef.current = { title, content };
 	useEffect(() => {
 		return () => {

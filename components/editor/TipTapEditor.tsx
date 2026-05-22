@@ -44,6 +44,7 @@ export default function TipTapEditor({
 		},
 		onUpdate({ editor }) {
 			onChange?.(editor.getJSON());
+			console.log(editor.getJSON());
 		},
 		immediatelyRender: false,
 	});

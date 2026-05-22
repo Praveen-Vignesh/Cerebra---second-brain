@@ -76,7 +76,10 @@ const Bottombar = ({
 		setUploading(true);
 		try {
 			const url = await uploadAttachment(file, noteId);
+			// console.log(url);
 			editor.chain().focus().setImage({ src: url }).run();
+			// console.log(JSON.stringify(editor.getJSON(), null, 2));
+
 		} catch (err) {
 			console.error('image upload failed:', err);
 		} finally {
