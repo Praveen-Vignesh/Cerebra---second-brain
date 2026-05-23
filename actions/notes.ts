@@ -102,3 +102,21 @@ export async function createNote() {
 	revalidatePath('/notes');
 	redirect(`/notes/${data.id}`);
 }
+
+export async function deleteNote(noteId: string) {
+	const supabase = await createClient();
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	if (!user) throw new Error('Not authenticated');
+
+	const { error } = await supabase.from('notes').delete().eq('id', noteId).eq('user_id', user.id);
+	
+	if (error) {
+		return {ok: false, error: error.message}
+	}
+
+	revalidatePath('/notes');
+	return {ok: true}
+}
