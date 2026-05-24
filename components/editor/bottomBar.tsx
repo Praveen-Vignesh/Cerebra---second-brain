@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/refs */
-/* eslint-disable jsx-a11y/alt-text */
+
+
 import React, { useState } from 'react';
 import { Editor, type JSONContent } from '@tiptap/react';
 import { Image, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react';
@@ -76,9 +76,9 @@ const Bottombar = ({
 		setUploading(true);
 		try {
 			const url = await uploadAttachment(file, noteId);
-			// console.log(url);
+
 			editor.chain().focus().setImage({ src: url }).run();
-			// console.log(JSON.stringify(editor.getJSON(), null, 2));
+
 
 		} catch (err) {
 			console.error('image upload failed:', err);
@@ -120,7 +120,7 @@ const Bottombar = ({
 
 	return (
 		<div className="cerebra-bottombar">
-			{/* hidden file inputs */}
+
 
 			<input
 				ref={imageref}
@@ -137,7 +137,7 @@ const Bottombar = ({
 				onChange={handleFile}
 			/>
 
-			{/* left cluster — insert tools */}
+
 
 			<div className="cerebra-bottombar-cluster">
 				{leftTools.map((tool) => (
@@ -154,11 +154,11 @@ const Bottombar = ({
 				))}
 			</div>
 
-			{/* divider */}
+
 
 			<div className="cerebra-bottombar-divider" />
 
-			{/* right cluster — actions */}
+
 
 			<div className="cerebra-bottombar-cluster">
 				<button

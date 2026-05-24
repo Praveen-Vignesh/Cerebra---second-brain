@@ -2,13 +2,15 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Clock, Star, MoreHorizontal, Pin, Trash2 } from 'lucide-react'
+import { Clock, Star, MoreHorizontal, Pin, Trash2, Folder } from 'lucide-react'
 import { timeAgo } from './timeAgo'
 
 type Props = {
   id: string
   title: string
-  topic: string
+  tags: string[]
+  folder?: string | null
+  excerpt?: string
   updatedAt: string
   pinned?: boolean
   onPinToggle?: (id: string) => void
@@ -18,7 +20,9 @@ type Props = {
 export default function NoteCard({
   id,
   title,
-  topic,
+  tags,
+  folder,
+  excerpt,
   updatedAt,
   pinned,
   onPinToggle,
@@ -26,7 +30,6 @@ export default function NoteCard({
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Stop the parent <Link> from navigating when clicking menu controls
   const stop = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -37,10 +40,17 @@ export default function NoteCard({
       href={`/notes/${id}`}
       className="relative block bg-card border border-border rounded-xl p-4 hover:border-accent/30 hover:shadow-sm transition-all"
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-medium px-2 py-1 bg-accent/10 text-accent rounded-md border border-accent/15">
-          {topic}
-        </span>
+
+      <div className="flex items-center justify-between mb-2">
+        {folder ? (
+          <span className="flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 bg-sidebar-accent text-muted-foreground rounded-md">
+            <Folder className="h-3 w-3" strokeWidth={1.75} />
+            {folder}
+          </span>
+        ) : (
+
+          <span />
+        )}
 
         <div className="flex items-center gap-1.5">
           {pinned && (
@@ -60,9 +70,26 @@ export default function NoteCard({
         </div>
       </div>
 
-      <h3 className="text-sm font-semibold text-foreground mb-2 leading-snug line-clamp-2">
+      <h3 className="text-sm font-semibold text-foreground leading-snug line-clamp-2 mb-2">
         {title || 'Untitled'}
       </h3>
+
+      {excerpt && (
+        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{excerpt}</p>
+      )}
+
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {tags.map((t) => (
+            <span
+              key={t}
+              className="text-[10px] font-medium px-1.5 py-0.5 bg-accent/10 text-accent rounded border border-accent/15"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
         <Clock className="h-3 w-3" strokeWidth={1.75} />
@@ -71,6 +98,7 @@ export default function NoteCard({
 
       {menuOpen && (
         <>
+
           <div
             className="fixed inset-0 z-10"
             onClick={(e) => {

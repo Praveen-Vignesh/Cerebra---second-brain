@@ -8,20 +8,18 @@ import {
 	Star,
 	LayoutGrid,
 	List,
-	Image as ImageIcon,
 	ChevronDown,
 	Check,
-} from 'lucide-react';  
+} from 'lucide-react';
 
-export type ViewMode = 'grid' | 'list' | 'gallery';
-export type SortKey = 'updated' | 'created' | 'title' | 'viewed';
+export type ViewMode = 'grid' | 'list';
+export type SortKey = 'updated' | 'created' | 'title';
 export type DateFilter = 'All time' | 'Today' | 'This week' | 'This month';
 
 const SORT_LABELS: Record<SortKey, string> = {
 	updated: 'Recently updated',
 	created: 'Recently created',
 	title: 'Title (A → Z)',
-	viewed: 'Last viewed',
 };
 
 const DATE_OPTIONS: DateFilter[] = ['All time', 'Today', 'This week', 'This month'];
@@ -62,9 +60,9 @@ export default function NotesToolbar({
 
 	return (
 		<div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 mb-6">
-			{/* Filters */}
+
 			<div className="flex flex-wrap items-center gap-2">
-				{/* Tags */}
+
 				<div className="relative">
 					<button
 						type="button"
@@ -102,7 +100,6 @@ export default function NotesToolbar({
 					)}
 				</div>
 
-				{/* Date */}
 				<div className="relative">
 					<button
 						type="button"
@@ -134,7 +131,6 @@ export default function NotesToolbar({
 					)}
 				</div>
 
-				{/* Pinned */}
 				<button
 					type="button"
 					onClick={onPinnedToggle}
@@ -153,7 +149,6 @@ export default function NotesToolbar({
 				</button>
 			</div>
 
-			{/* Sort + view */}
 			<div className="flex items-center gap-2">
 				<div className="relative">
 					<button
@@ -196,13 +191,6 @@ export default function NotesToolbar({
 						label="List"
 					>
 						<List className="h-3.5 w-3.5" strokeWidth={1.75} />
-					</ViewBtn>
-					<ViewBtn
-						active={view === 'gallery'}
-						onClick={() => onViewChange('gallery')}
-						label="Gallery"
-					>
-						<ImageIcon className="h-3.5 w-3.5" strokeWidth={1.75} />
 					</ViewBtn>
 				</div>
 			</div>

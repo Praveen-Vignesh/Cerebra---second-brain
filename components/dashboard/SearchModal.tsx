@@ -51,16 +51,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* Backdrop */}
+
       <div
         className="fixed inset-0 bg-foreground/20 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="fixed inset-0 flex items-start justify-center pt-[15vh] px-4">
         <div className="w-full max-w-xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
-          {/* Input */}
+
           <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border">
             <Search className="h-4 w-4 text-muted-foreground shrink-0" strokeWidth={1.75} />
             <input
@@ -75,7 +74,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </kbd>
           </div>
 
-          {/* Results */}
           <div className="max-h-80 overflow-y-auto py-1">
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">
               Recent
@@ -106,7 +104,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             ))}
           </div>
 
-          {/* Footer */}
           <div className="border-t border-border px-4 py-2.5 flex items-center gap-4 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <kbd className="font-mono bg-background border border-border rounded px-1 py-0.5">↵</kbd>

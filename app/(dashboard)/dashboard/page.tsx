@@ -73,7 +73,7 @@ export default function DashboardPage() {
 
 	return (
 		<div className="space-y-6">
-			{/* Greeting Header */}
+
 			<div>
 				<h1 className="text-3xl font-bold text-foreground">
 					{greeting}, {userName}
@@ -83,10 +83,8 @@ export default function DashboardPage() {
 				</p>
 			</div>
 
-			{/* Insta Dump Widget */}
 			<InstaDump />
 
-			{/* Stat Cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 				<StatCard
 					title="Notes this week"
@@ -110,7 +108,6 @@ export default function DashboardPage() {
 				/>
 			</div>
 
-			{/* Recent Notes */}
 			<div>
 				<div className="flex items-center justify-between mb-4">
 					<h2 className="text-xl font-semibold text-foreground">
@@ -130,7 +127,6 @@ export default function DashboardPage() {
 				</div>
 			</div>
 
-			{/* Active Projects */}
 			<div>
 				<div className="flex items-center justify-between mb-4">
 					<h2 className="text-xl font-semibold text-foreground">

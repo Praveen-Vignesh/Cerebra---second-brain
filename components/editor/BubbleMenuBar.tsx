@@ -67,19 +67,19 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 				strategy: 'fixed',
 				flip: {
 					padding: 12,
-					// Tell the menu not to flip outside the actual editor box
+
 					boundary: editor.view.dom as HTMLElement,
 					fallbackPlacements: ['top'],
 				},
 				shift: {
 					padding: 12,
-					// Tell the menu not to slide underneath your sidebar
+
 					boundary: editor.view.dom as HTMLElement,
 				},
 			}}
 		>
 			<div className="cerebra-bubble-menu">
-				{/* ── ROW 1: Formatting, Alignment, & Lists ── */}
+
 				<div className="cerebra-bubble-row">
 					<button
 						onClick={() => editor.chain().focus().toggleBold().run()}
@@ -197,7 +197,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 
 					<div className="cerebra-bubble-divider" />
 
-					{/* Corrected List Buttons */}
+
 					<button
 						onClick={() => editor.chain().focus().toggleOrderedList().run()}
 						className={btn(editor.isActive('orderedList'))}
@@ -217,9 +217,9 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 					</button>
 				</div>
 
-				{/* ── ROW 2: Typography & Highlighting ── */}
+
 				<div className="cerebra-bubble-row">
-					{/* ── Font Family ── */}
+
 					<div className="cerebra-bubble-group">
 						<Type size={14} className="cerebra-bubble-group-icon" />
 						<select
@@ -242,7 +242,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 						</select>
 					</div>
 
-					{/* ── Font Size ── */}
+
 					<div className="cerebra-bubble-group">
 						<select
 							onChange={(e) => {
@@ -264,7 +264,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 						</select>
 					</div>
 
-					{/* ── Text Color ── */}
+
 					<div className="cerebra-bubble-group">
 						<Palette size={14} className="cerebra-bubble-group-icon" />
 						<input
@@ -280,7 +280,7 @@ export default function CustomBubbleMenu({ editor, isDark }: Props) {
 
 					<div className="cerebra-bubble-divider" />
 
-					{/* ── Highlight Colors ── */}
+
 					<div className="cerebra-bubble-swatches">
 						{colors.map(({ name, value, label }) => {
 							const isActive = editor.isActive('highlight', { color: value });

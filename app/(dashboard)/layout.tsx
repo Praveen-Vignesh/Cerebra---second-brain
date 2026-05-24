@@ -2,23 +2,55 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/utils/client"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { User } from "@supabase/supabase-js"
 import Sidebar from "@/components/dashboard/Sidebar"
 import TopBar from "@/components/dashboard/TopBar"
 import SearchModal from "@/components/dashboard/SearchModal"
+import NotesSidebar from "@/components/notes/NotesSidebar"
+
+const NOTES_ROUTES = ["/notes", "/archive", "/trash"]
+
+function isNotesRoute(pathname: string): boolean {
+	return NOTES_ROUTES.some((p) => pathname === p || pathname.startsWith(p + "/"))
+}
 
 export default function DashboardLayout({
 	children,
 }: {
 	children: React.ReactNode
 }) {
+
 	const [user, setUser] = useState<User | null>(null)
+
 	const [loading, setLoading] = useState(true)
+
 	const [sidebarOpen, setSidebarOpen] = useState(false)
+
 	const [searchModalOpen, setSearchModalOpen] = useState(false)
+
 	const router = useRouter()
+	const pathname = usePathname()
+	const inNotesContext = isNotesRoute(pathname)
+	const [mainCollapsed, setMainCollapsed] = useState(inNotesContext)
+
+	const [isDesktop, setIsDesktop] = useState(false)
+
 	const supabase = createClient()
+
+	useEffect(() => {
+
+		setMainCollapsed(inNotesContext)
+	}, [inNotesContext])
+
+	useEffect(() => {
+		const mq = window.matchMedia("(min-width: 1024px)")
+		const update = () => setIsDesktop(mq.matches)
+		update()
+		mq.addEventListener("change", update)
+
+		return () => mq.removeEventListener("change", update)
+	}, [])
 
 	useEffect(() => {
 		const getUser = async () => {
@@ -57,7 +89,6 @@ export default function DashboardLayout({
 				setSearchModalOpen(false)
 			}
 		}
-
 		window.addEventListener("keydown", handleKeyDown)
 		return () => window.removeEventListener("keydown", handleKeyDown)
 	}, [])
@@ -70,9 +101,15 @@ export default function DashboardLayout({
 		)
 	}
 
+	const mainWidth = mainCollapsed ? 56 : 240
+	const notesWidth = inNotesContext ? 240 : 0
+	const leftPad = mainWidth + notesWidth
+
+	const toggleMain = () => setMainCollapsed((v) => !v)
+
 	return (
 		<div className="min-h-screen bg-background">
-			{/* Mobile sidebar overlay */}
+
 			{sidebarOpen && (
 				<div
 					className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -80,27 +117,37 @@ export default function DashboardLayout({
 				/>
 			)}
 
-			{/* Sidebar */}
 			<Sidebar
 				user={user}
 				isOpen={sidebarOpen}
 				onClose={() => setSidebarOpen(false)}
 				onSearchClick={() => setSearchModalOpen(true)}
+				collapsed={mainCollapsed}
+				onToggleCollapsed={inNotesContext ? toggleMain : undefined}
 			/>
 
-			{/* Top bar for mobile */}
+			{inNotesContext && (
+				<div
+					className="hidden lg:fixed lg:inset-y-0 lg:z-40 lg:w-60 lg:flex lg:flex-col bg-sidebar border-r border-sidebar-border transition-[left] duration-200 ease-in-out"
+					style={{ left: `${mainWidth}px` }}
+				>
+					<NotesSidebar />
+				</div>
+			)}
+
 			<TopBar
 				user={user}
 				onMenuClick={() => setSidebarOpen(true)}
 				onSearchClick={() => setSearchModalOpen(true)}
 			/>
 
-			{/* Main content */}
-			<main className="lg:pl-64 pt-16 lg:pt-0">
+			<main
+				className="pt-16 lg:pt-0 transition-[padding] duration-200 ease-in-out"
+				style={{ paddingLeft: isDesktop ? `${leftPad}px` : undefined }}
+			>
 				<div className="p-4 lg:p-6">{children}</div>
 			</main>
 
-			{/* Search modal */}
 			<SearchModal
 				isOpen={searchModalOpen}
 				onClose={() => setSearchModalOpen(false)}

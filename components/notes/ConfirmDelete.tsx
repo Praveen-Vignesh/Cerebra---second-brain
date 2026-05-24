@@ -25,13 +25,12 @@ export default function ConfirmDelete({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={pending ? undefined : onCancel}
       />
 
-      {/* Dialog */}
       <div
         role="dialog"
         aria-modal="true"

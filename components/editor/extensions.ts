@@ -1,4 +1,4 @@
-// components/editor/extensions.ts
+
 import { Extension } from '@tiptap/core';
 import { NodeSelection } from '@tiptap/pm/state';
 import StarterKit from '@tiptap/starter-kit';
@@ -16,11 +16,6 @@ import Superscript from '@tiptap/extension-superscript';
 import { common, createLowlight } from 'lowlight';
 
 const lowlight = createLowlight(common);
-
-// When the cursor sits at the start of a block directly after a table,
-// the first Backspace selects the table (ProseMirror's intended
-// selectNodeBackward step, which is unreliable for tables); the next
-// Backspace falls through to the default deleteSelection and removes it.
 
 const TableBackspace = Extension.create({
 	name: 'tableBackspace',
@@ -67,8 +62,6 @@ export const getExtensions = () => [
 		HTMLAttributes: { class: 'cerebra-code-block' },
 	}),
 
-	// ── Tables ──
-	// TableKit bundles Table, TableRow, TableHeader and TableCell.
 	TableKit.configure({
 		table: { resizable: true, HTMLAttributes: { class: 'cerebra-table' }, cellMinWidth: 100},
 		tableHeader: { HTMLAttributes: { class: 'cerebra-table-header' } },
@@ -76,17 +69,15 @@ export const getExtensions = () => [
 		tableCell: { HTMLAttributes: { class: 'cerebra-table-cell' } },
 	}),
 
-	// ── Collapsible details / toggle blocks ──
 	Details.configure({
 		persist: true,
 		openClassName: 'cerebra-details-isOpen',
 		HTMLAttributes: { class: 'cerebra-details' },
-		
+
 	}),
 	DetailsContent,
 	DetailsSummary,
 
-	// ── Media ──
 	Image.configure({
 		resize: {
 			enabled: true,
@@ -99,8 +90,6 @@ export const getExtensions = () => [
 		inline: true,
 	}),
 
-	// ── Text styling ──
-	// TextStyleKit bundles TextStyle, Color, FontFamily, FontSize, etc.
 	Highlight.configure({ multicolor: true }),
 	TextStyleKit,
 	Typography,

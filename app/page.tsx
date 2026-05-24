@@ -54,7 +54,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Hero Section */}
+
       <section className="px-4 py-20 md:py-32">
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8 flex justify-center">
@@ -93,7 +93,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features Section */}
+
       <section className="px-4 py-20 bg-card/50">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -111,7 +111,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
+
       <footer className="px-4 py-12 border-t border-border">
         <div className="max-w-6xl mx-auto text-center">
           <h3 className="text-2xl font-bold mb-2">Cerebra</h3>

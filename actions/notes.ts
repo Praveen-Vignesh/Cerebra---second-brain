@@ -5,7 +5,10 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import type { JSONContent } from '@tiptap/react';
 
-type SaveResult = { ok: true } | { ok: false; error: string };
+type Result<T = undefined> =
+	| (T extends undefined ? { ok: true } : { ok: true; data: T })
+	| { ok: false; error: string };
+
 type SaveOptions = { createVersion?: boolean };
 
 const ATTACHMENT_BUCKET = 'note-attachments';
@@ -34,12 +37,43 @@ function extractAttachmentPaths(content: JSONContent): string[] {
 	return paths;
 }
 
+async function requireUser() {
+	const supabase = await createClient();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	if (!user) throw new Error('Not authenticated');
+	return { supabase, user };
+}
+
+const EMPTY_DOC: JSONContent = { type: 'doc', content: [{ type: 'paragraph' }] };
+
+export async function createNote(folderId?: string) {
+	const { supabase, user } = await requireUser();
+
+	const { data, error } = await supabase
+		.from('notes')
+		.insert({
+			user_id: user.id,
+			title: 'Untitled',
+			content: EMPTY_DOC,
+			folder_id: folderId ?? null,
+		})
+		.select('id')
+		.single();
+
+	if (error) throw error;
+
+	revalidatePath('/notes');
+	redirect(`/notes/${data.id}`);
+}
+
 export async function saveNote(
 	id: string,
 	title: string,
 	content: JSONContent,
 	options: SaveOptions = {}
-): Promise<SaveResult> {
+): Promise<Result> {
 	const safeContent: JSONContent = JSON.parse(JSON.stringify(content));
 
 	const supabase = await createClient();
@@ -82,41 +116,170 @@ export async function saveNote(
 	return { ok: true };
 }
 
-const EMPTY_DOC: JSONContent = { type: 'doc', content: [{ type: 'paragraph' }] };
+export async function togglePin(noteId: string): Promise<Result> {
+	const { supabase, user } = await requireUser();
 
-export async function createNote() {
-	const supabase = await createClient();
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-	if (!user) throw new Error('Not authenticated');
-
-	const { data, error } = await supabase
+	const { data: note, error: fetchError } = await supabase
 		.from('notes')
-		.insert({ user_id: user.id, title: 'Untitled', content: EMPTY_DOC })
-		.select('id')
-		.single();
+		.select('pinned')
+		.eq('id', noteId)
+		.eq('user_id', user.id)
+		.maybeSingle<{ pinned: boolean }>();
 
-	if (error) throw error;
+	if (fetchError) return { ok: false, error: fetchError.message };
+	if (!note) return { ok: false, error: 'Note not found' };
+
+	const { error } = await supabase
+		.from('notes')
+		.update({ pinned: !note.pinned })
+		.eq('id', noteId)
+		.eq('user_id', user.id);
+
+	if (error) return { ok: false, error: error.message };
 
 	revalidatePath('/notes');
-	redirect(`/notes/${data.id}`);
+	return { ok: true };
 }
 
-export async function deleteNote(noteId: string) {
-	const supabase = await createClient();
+export async function setNoteFolder(noteId: string, folderId: string | null): Promise<Result> {
+	const { supabase, user } = await requireUser();
 
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-	if (!user) throw new Error('Not authenticated');
+	const { error } = await supabase
+		.from('notes')
+		.update({ folder_id: folderId })
+		.eq('id', noteId)
+		.eq('user_id', user.id);
 
-	const { error } = await supabase.from('notes').delete().eq('id', noteId).eq('user_id', user.id);
-	
-	if (error) {
-		return {ok: false, error: error.message}
-	}
+	if (error) return { ok: false, error: error.message };
 
 	revalidatePath('/notes');
-	return {ok: true}
+	return { ok: true };
+}
+
+export async function archiveNote(noteId: string): Promise<Result> {
+	const { supabase, user } = await requireUser();
+
+	const { error } = await supabase
+		.from('notes')
+		.update({ archived_at: new Date().toISOString() })
+		.eq('id', noteId)
+		.eq('user_id', user.id);
+
+	if (error) return { ok: false, error: error.message };
+
+	revalidatePath('/notes');
+	revalidatePath('/archive');
+	return { ok: true };
+}
+
+export async function unarchiveNote(noteId: string): Promise<Result> {
+	const { supabase, user } = await requireUser();
+
+	const { error } = await supabase
+		.from('notes')
+		.update({ archived_at: null })
+		.eq('id', noteId)
+		.eq('user_id', user.id);
+
+	if (error) return { ok: false, error: error.message };
+
+	revalidatePath('/notes');
+	revalidatePath('/archive');
+	return { ok: true };
+}
+
+export async function deleteNote(noteId: string): Promise<Result> {
+	const { supabase, user } = await requireUser();
+
+	const { error } = await supabase
+		.from('notes')
+		.update({ deleted_at: new Date().toISOString() })
+		.eq('id', noteId)
+		.eq('user_id', user.id);
+
+	if (error) return { ok: false, error: error.message };
+
+	revalidatePath('/notes');
+	revalidatePath('/trash');
+	return { ok: true };
+}
+
+export async function restoreNote(noteId: string): Promise<Result> {
+	const { supabase, user } = await requireUser();
+
+	const { error } = await supabase
+		.from('notes')
+		.update({ deleted_at: null })
+		.eq('id', noteId)
+		.eq('user_id', user.id);
+
+	if (error) return { ok: false, error: error.message };
+
+	revalidatePath('/notes');
+	revalidatePath('/trash');
+	return { ok: true };
+}
+
+export async function permanentlyDeleteNote(noteId: string): Promise<Result> {
+	const { supabase, user } = await requireUser();
+
+	const { data: note } = await supabase
+		.from('notes')
+		.select('content')
+		.eq('id', noteId)
+		.eq('user_id', user.id)
+		.maybeSingle<{ content: JSONContent }>();
+
+	const { error } = await supabase
+		.from('notes')
+		.delete()
+		.eq('id', noteId)
+		.eq('user_id', user.id);
+
+	if (error) return { ok: false, error: error.message };
+
+	if (note?.content) {
+		const paths = extractAttachmentPaths(note.content);
+		if (paths.length > 0) {
+			const { error: removeError } = await supabase.storage
+				.from(ATTACHMENT_BUCKET)
+				.remove(paths);
+			if (removeError) console.error('storage cleanup failed:', removeError.message);
+		}
+	}
+
+	revalidatePath('/trash');
+	return { ok: true };
+}
+
+export async function emptyTrash(): Promise<Result> {
+	const { supabase, user } = await requireUser();
+
+	const { data: rawNotes } = await supabase
+		.from('notes')
+		.select('content')
+		.eq('user_id', user.id)
+		.not('deleted_at', 'is', null);
+	const notes = (rawNotes ?? []) as { content: JSONContent }[];
+
+	const { error } = await supabase
+		.from('notes')
+		.delete()
+		.eq('user_id', user.id)
+		.not('deleted_at', 'is', null);
+
+	if (error) return { ok: false, error: error.message };
+
+	if (notes.length > 0) {
+		const allPaths = notes.flatMap((n) => extractAttachmentPaths(n.content));
+		if (allPaths.length > 0) {
+			const { error: removeError } = await supabase.storage
+				.from(ATTACHMENT_BUCKET)
+				.remove(allPaths);
+			if (removeError) console.error('storage cleanup failed:', removeError.message);
+		}
+	}
+
+	revalidatePath('/trash');
+	return { ok: true };
 }

@@ -7,9 +7,9 @@ export default function SignupForm({ onToggle }: { onToggle: () => void }) {
   const [isPending, startTransition] = useTransition();
 
   const handleEmailSignup = (formData: FormData) => {
-    setError(null); 
+    setError(null);
     startTransition(async () => {
-      // Notice we call SIGNUP action here
+
       const result = await signupWithEmail(formData);
       if (result?.error) {
         setError(result.error);
@@ -33,26 +33,26 @@ export default function SignupForm({ onToggle }: { onToggle: () => void }) {
       <form action={handleEmailSignup} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-foreground">Email address</label>
-          <input 
-            id="email" 
-            name="email" 
-            type="email" 
-            required 
-            className="mt-1 block w-full rounded-lg border border-border bg-background px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent" 
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            className="mt-1 block w-full rounded-lg border border-border bg-background px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
           />
         </div>
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-foreground">Password</label>
-          <input 
-            id="password" 
-            name="password" 
-            type="password" 
-            required 
-            className="mt-1 block w-full rounded-lg border border-border bg-background px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent" 
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            className="mt-1 block w-full rounded-lg border border-border bg-background px-4 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
           />
         </div>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={isPending}
           className="w-full rounded-lg bg-accent px-4 py-2 text-accent-foreground font-semibold hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
@@ -60,7 +60,7 @@ export default function SignupForm({ onToggle }: { onToggle: () => void }) {
         </button>
       </form>
 
-      {/* Notice it calls exact same Google action, just with different text */}
+
       <form action={signinWithGoogle}>
         <button className="w-full rounded-lg border border-border bg-card text-card-foreground px-4 py-2 font-semibold hover:bg-card/80 transition-colors">
           Sign up with Google
