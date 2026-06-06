@@ -13,6 +13,8 @@ import NotesEmptyState from './NotesEmptyState'
 import ConfirmDelete from './ConfirmDelete'
 import { deleteNote, togglePin } from '@/actions/notes'
 
+export type TagLite = { name: string; color: string | null }
+
 export type NoteListItem = {
   id: string
   title: string
@@ -21,7 +23,7 @@ export type NoteListItem = {
   pinned: boolean
   folder_id: string | null
   folder: string | null
-  tags: string[]
+  tags: TagLite[]
 }
 
 type Props = {
@@ -70,7 +72,7 @@ export default function NotesPageClient({ notes, createAction }: Props) {
   const afterTags =
     activeTags.length === 0
       ? afterDate
-      : afterDate.filter((n) => n.tags.some((t) => activeTags.includes(t)))
+      : afterDate.filter((n) => n.tags.some((t) => activeTags.includes(t.name)))
 
   const afterPinned = pinnedOnly ? afterTags.filter((n) => n.pinned) : afterTags
 
@@ -79,7 +81,9 @@ export default function NotesPageClient({ notes, createAction }: Props) {
   const pinned = pinnedOnly ? [] : sorted.filter((n) => n.pinned)
   const rest = pinnedOnly ? sorted : sorted.filter((n) => !n.pinned)
 
-  const allTags = [...new Set(notes.flatMap((n) => n.tags))].sort()
+  const tagColors: Record<string, string | null> = {}
+  notes.forEach((n) => n.tags.forEach((t) => { tagColors[t.name] = t.color }))
+  const allTags = Object.keys(tagColors).sort()
 
   const placeholderExcerpt =
     'Preview of the note body would appear here, truncated to roughly two lines so similar titles are distinguishable.'
@@ -108,6 +112,7 @@ export default function NotesPageClient({ notes, createAction }: Props) {
             sort={sort}
             onSortChange={setSort}
             tags={allTags}
+            tagColors={tagColors}
             activeTags={activeTags}
             onTagsChange={setActiveTags}
             dateFilter={dateFilter}

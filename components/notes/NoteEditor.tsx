@@ -14,6 +14,7 @@ import {
 	Plus,
 	Folder,
 	Check,
+	MoreHorizontal,
 } from 'lucide-react';
 import TipTapEditor from '@/components/editor/TipTapEditor';
 import {
@@ -23,12 +24,13 @@ import {
 	deleteNote,
 	setNoteFolder,
 } from '@/actions/notes';
-import { tagNoteByName, removeTagFromNote } from '@/actions/tags';
+import { tagNoteByName, removeTagFromNote, setTagColor } from '@/actions/tags';
 import ConfirmDelete from './ConfirmDelete';
+import { TAG_PALETTE, tagChipStyle, DEFAULT_TAG_CLASS } from './tagStyle';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
-type Tag = { id: string; name: string };
+type Tag = { id: string; name: string; color: string | null };
 type FolderLite = { id: string; name: string };
 
 type Props = {
@@ -40,6 +42,7 @@ type Props = {
 	initialTags: Tag[];
 	initialFolder: FolderLite | null;
 	allFolders: FolderLite[];
+	allTags: Tag[];
 };
 
 export default function NoteEditor({
@@ -51,6 +54,7 @@ export default function NoteEditor({
 	initialTags,
 	initialFolder,
 	allFolders,
+	allTags,
 }: Props) {
 	const router = useRouter();
 
@@ -65,6 +69,7 @@ export default function NoteEditor({
 	const [folderMenuOpen, setFolderMenuOpen] = useState(false);
 	const [tagInputOpen, setTagInputOpen] = useState(false);
 	const [tagInputValue, setTagInputValue] = useState('');
+	const [colorPickerFor, setColorPickerFor] = useState<string | null>(null);
 
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -181,52 +186,44 @@ export default function NoteEditor({
 		}
 	}
 
+	async function handleSetColor(tag: Tag, color: string | null) {
+		setColorPickerFor(null);
+		setTags((current) =>
+			current.map((t) => (t.id === tag.id ? { ...t, color } : t))
+		);
+		const res = await setTagColor(tag.id, color);
+		if (!res.ok) console.error('setTagColor failed:', res.error);
+	}
+
+	const tagQuery = tagInputValue.trim().toLowerCase().replace(/\s+/g, '-');
+	const tagSuggestions = allTags.filter(
+		(at) =>
+			!tags.some((t) => t.id === at.id) &&
+			(tagQuery === '' || at.name.includes(tagQuery))
+	);
+
 	const prettyCreatedAt = new Date(createdAt).toLocaleDateString(undefined, {
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric',
 	});
 
-	const tocHeadings = [
-		{ level: 1, text: 'Introduction' },
-		{ level: 2, text: 'Newton’s First Law' },
-		{ level: 2, text: 'Newton’s Second Law' },
-	];
-
 	return (
 		<div className="cerebra-note-page max-w-6xl mx-auto px-6 py-6">
 
 			<div className="flex items-center justify-between mb-6">
-				<div className="flex items-center gap-1">
-					<ActionBtn
-						label={pinned ? 'Unpin' : 'Pin'}
-						active={pinned}
-						icon={
-							<Pin
-								className="h-4 w-4"
-								strokeWidth={1.75}
-								fill={pinned ? 'currentColor' : 'none'}
-							/>
-						}
-						onClick={handlePin}
-					/>
-					<ActionBtn
-						label="Archive"
-						icon={<Archive className="h-4 w-4" strokeWidth={1.75} />}
-						onClick={handleArchive}
-					/>
-					<ActionBtn
-						label="Delete"
-						danger
-						icon={<Trash2 className="h-4 w-4" strokeWidth={1.75} />}
-						onClick={() => setConfirmingDelete(true)}
-					/>
-				</div>
-
 				<div className="flex items-center gap-3 text-xs text-muted-foreground">
 					<SaveStatusPill status={status} />
 					<span>Created {prettyCreatedAt}</span>
 				</div>
+
+				<NoteActionsMenu
+					pinned={pinned}
+					onPin={handlePin}
+					onArchive={handleArchive}
+					onVersionHistory={() => console.log('TODO: open version history')}
+					onDelete={() => setConfirmingDelete(true)}
+				/>
 			</div>
 
 			<input
@@ -245,9 +242,21 @@ export default function NoteEditor({
 					{tags.map((t) => (
 						<span
 							key={t.id}
-							className="group flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 bg-accent/10 text-accent rounded border border-accent/15"
+							style={tagChipStyle(t.color)}
+							className={`group relative flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded border ${
+								t.color ? '' : DEFAULT_TAG_CLASS
+							}`}
 						>
-							{t.name}
+							<button
+								type="button"
+								onClick={() =>
+									setColorPickerFor(colorPickerFor === t.id ? null : t.id)
+								}
+								className="cursor-pointer"
+								title="Change colour"
+							>
+								{t.name}
+							</button>
 							<button
 								type="button"
 								onClick={() => handleRemoveTag(t)}
@@ -256,30 +265,61 @@ export default function NoteEditor({
 							>
 								<X className="h-3 w-3" strokeWidth={2} />
 							</button>
+
+							{colorPickerFor === t.id && (
+								<ColorPopover
+									current={t.color}
+									onPick={(color) => handleSetColor(t, color)}
+									onClose={() => setColorPickerFor(null)}
+								/>
+							)}
 						</span>
 					))}
 
 					{tagInputOpen ? (
-						<input
-							type="text"
-							autoFocus
-							value={tagInputValue}
-							onChange={(e) => setTagInputValue(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter') handleAddTag(tagInputValue);
-								if (e.key === 'Escape') {
-									setTagInputValue('');
-									setTagInputOpen(false);
-								}
-							}}
-							onBlur={() => {
+						<div className="relative">
+							<input
+								type="text"
+								autoFocus
+								value={tagInputValue}
+								onChange={(e) => setTagInputValue(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter') handleAddTag(tagInputValue);
+									if (e.key === 'Escape') {
+										setTagInputValue('');
+										setTagInputOpen(false);
+									}
+								}}
+								onBlur={() => {
 
-								if (tagInputValue.trim()) handleAddTag(tagInputValue);
-								else setTagInputOpen(false);
-							}}
-							placeholder="tag name"
-							className="text-[11px] bg-card border border-border rounded px-1.5 py-0.5 outline-none focus:border-accent/30 w-24"
-						/>
+									if (tagInputValue.trim()) handleAddTag(tagInputValue);
+									else setTagInputOpen(false);
+								}}
+								placeholder="tag name"
+								className="text-[11px] bg-card border border-border rounded px-1.5 py-0.5 outline-none focus:border-accent/30 w-28"
+							/>
+							{tagSuggestions.length > 0 && (
+								<div className="absolute left-0 top-full z-20 mt-1 min-w-40 bg-card border border-border rounded-lg shadow-lg p-1 max-h-48 overflow-y-auto">
+									{tagSuggestions.map((s) => (
+										<button
+											key={s.id}
+											type="button"
+											onMouseDown={(e) => e.preventDefault()}
+											onClick={() => handleAddTag(s.name)}
+											className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-md hover:bg-sidebar-accent transition-colors text-left"
+										>
+											<span
+												className={`h-2 w-2 rounded-full shrink-0 ${
+													s.color ? '' : 'bg-muted-foreground/40'
+												}`}
+												style={s.color ? { backgroundColor: s.color } : undefined}
+											/>
+											<span className="truncate">{s.name}</span>
+										</button>
+									))}
+								</div>
+							)}
+						</div>
 					) : (
 						<button
 							type="button"
@@ -334,47 +374,14 @@ export default function NoteEditor({
 				</div>
 			</div>
 
-			<div className="flex gap-8">
-				<div className="flex-1 min-w-0">
-					<TipTapEditor
-						initialContent={initialContent}
-						noteId={noteId}
-						onChange={setContent}
-						onSave={(json) => save(json, true)}
-						saveStatus={status}
-					/>
-				</div>
-
-				<aside className="hidden lg:flex flex-col gap-6 w-56 shrink-0 sticky top-6 self-start">
-					<div>
-						<div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-							On this page
-						</div>
-						<ul className="flex flex-col gap-1">
-							{tocHeadings.map((h, i) => (
-								<li key={i}>
-									<button
-										type="button"
-										onClick={() => console.log('TODO: scroll to', h.text)}
-										className="text-left text-xs text-muted-foreground hover:text-foreground transition-colors block w-full truncate"
-										style={{ paddingLeft: `${(h.level - 1) * 12}px` }}
-									>
-										{h.text}
-									</button>
-								</li>
-							))}
-						</ul>
-					</div>
-
-					<button
-						type="button"
-						onClick={() => console.log('TODO: open version history')}
-						className="flex items-center gap-2 text-xs font-medium px-2.5 py-1.5 rounded-md border border-border bg-card text-foreground hover:border-accent/30 transition-colors w-full justify-center"
-					>
-						<History className="h-3.5 w-3.5" strokeWidth={1.75} />
-						Version history
-					</button>
-				</aside>
+			<div className="min-w-0">
+				<TipTapEditor
+					initialContent={initialContent}
+					noteId={noteId}
+					onChange={setContent}
+					onSave={(json) => save(json, true)}
+					saveStatus={status}
+				/>
 			</div>
 
 			<ConfirmDelete
@@ -387,34 +394,136 @@ export default function NoteEditor({
 	);
 }
 
-function ActionBtn({
-	label,
+function NoteActionsMenu({
+	pinned,
+	onPin,
+	onArchive,
+	onVersionHistory,
+	onDelete,
+}: {
+	pinned: boolean;
+	onPin: () => void;
+	onArchive: () => void;
+	onVersionHistory: () => void;
+	onDelete: () => void;
+}) {
+	const [open, setOpen] = useState(false);
+
+	const run = (fn: () => void) => () => {
+		setOpen(false);
+		fn();
+	};
+
+	return (
+		<div className="relative">
+			<button
+				type="button"
+				onClick={() => setOpen(!open)}
+				aria-label="Note actions"
+				className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+			>
+				<MoreHorizontal className="h-4 w-4" strokeWidth={1.75} />
+			</button>
+			{open && (
+				<>
+					<div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+					<div className="absolute right-0 z-20 mt-1.5 min-w-44 bg-card border border-border rounded-lg shadow-lg p-1">
+						<ActionMenuItem
+							icon={
+								<Pin
+									className="h-3.5 w-3.5"
+									strokeWidth={1.75}
+									fill={pinned ? 'currentColor' : 'none'}
+								/>
+							}
+							label={pinned ? 'Unpin' : 'Pin'}
+							onClick={run(onPin)}
+						/>
+						<ActionMenuItem
+							icon={<Archive className="h-3.5 w-3.5" strokeWidth={1.75} />}
+							label="Archive"
+							onClick={run(onArchive)}
+						/>
+						<ActionMenuItem
+							icon={<History className="h-3.5 w-3.5" strokeWidth={1.75} />}
+							label="Version history"
+							onClick={run(onVersionHistory)}
+						/>
+						<ActionMenuItem
+							icon={<Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />}
+							label="Delete"
+							danger
+							onClick={run(onDelete)}
+						/>
+					</div>
+				</>
+			)}
+		</div>
+	);
+}
+
+function ActionMenuItem({
 	icon,
+	label,
 	onClick,
 	danger,
-	active,
 }: {
-	label: string;
 	icon: React.ReactNode;
+	label: string;
 	onClick: () => void;
 	danger?: boolean;
-	active?: boolean;
 }) {
-
-	const colour = danger
-		? 'text-muted-foreground hover:text-red-500 hover:bg-red-500/10'
-		: active
-		? 'text-accent bg-accent/10'
-		: 'text-muted-foreground hover:text-foreground hover:bg-sidebar-accent';
 	return (
 		<button
 			type="button"
 			onClick={onClick}
-			className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md transition-colors ${colour}`}
+			className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-md transition-colors text-left ${
+				danger
+					? 'text-red-500 hover:bg-red-500/10'
+					: 'text-foreground hover:bg-sidebar-accent'
+			}`}
 		>
 			{icon}
 			{label}
 		</button>
+	);
+}
+
+function ColorPopover({
+	current,
+	onPick,
+	onClose,
+}: {
+	current: string | null;
+	onPick: (color: string | null) => void;
+	onClose: () => void;
+}) {
+	return (
+		<>
+			<div className="fixed inset-0 z-10" onClick={onClose} />
+			<div className="absolute left-0 top-full z-20 mt-1 bg-card border border-border rounded-lg shadow-lg p-2">
+				<div className="grid grid-cols-4 gap-1.5">
+					{TAG_PALETTE.map((hex) => (
+						<button
+							key={hex}
+							type="button"
+							onClick={() => onPick(hex)}
+							style={{ backgroundColor: hex }}
+							className={`h-5 w-5 rounded-full transition-transform hover:scale-110 ${
+								current === hex ? 'ring-2 ring-offset-1 ring-offset-card ring-foreground/40' : ''
+							}`}
+						/>
+					))}
+				</div>
+				<button
+					type="button"
+					onClick={() => onPick(null)}
+					className="mt-2 w-full text-[11px] text-muted-foreground hover:text-foreground text-center"
+				>
+					Clear colour
+				</button>
+			</div>
+		</>
 	);
 }
 

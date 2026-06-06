@@ -30,6 +30,7 @@ type Props = {
 	sort: SortKey;
 	onSortChange: (s: SortKey) => void;
 	tags: string[];
+	tagColors: Record<string, string | null>;
 	activeTags: string[];
 	onTagsChange: (t: string[]) => void;
 	dateFilter: DateFilter;
@@ -44,6 +45,7 @@ export default function NotesToolbar({
 	sort,
 	onSortChange,
 	tags,
+	tagColors,
 	activeTags,
 	onTagsChange,
 	dateFilter,
@@ -91,6 +93,7 @@ export default function NotesToolbar({
 									<MenuItem
 										key={t}
 										label={t}
+										color={tagColors[t]}
 										selected={activeTags.includes(t)}
 										onClick={() => toggleTag(t)}
 									/>
@@ -225,10 +228,12 @@ function MenuItem({
 	label,
 	selected,
 	onClick,
+	color,
 }: {
 	label: string;
 	selected: boolean;
 	onClick: () => void;
+	color?: string | null;
 }) {
 	return (
 		<button
@@ -236,8 +241,16 @@ function MenuItem({
 			onClick={onClick}
 			className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 text-xs rounded-md hover:bg-sidebar-accent transition-colors"
 		>
-			{label}
-			{selected && <Check className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />}
+			<span className="flex items-center gap-1.5 min-w-0">
+				{color !== undefined && (
+					<span
+						className={`h-2 w-2 rounded-full shrink-0 ${color ? '' : 'bg-muted-foreground/40'}`}
+						style={color ? { backgroundColor: color } : undefined}
+					/>
+				)}
+				<span className="truncate">{label}</span>
+			</span>
+			{selected && <Check className="h-3.5 w-3.5 text-accent shrink-0" strokeWidth={2.5} />}
 		</button>
 	);
 }

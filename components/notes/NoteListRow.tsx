@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import { Clock, FileText, Folder, Pin, Trash2 } from 'lucide-react'
 import { timeAgo } from './timeAgo'
+import { tagChipStyle, DEFAULT_TAG_CLASS } from './tagStyle'
+import type { TagLite } from './NotesPageClient'
 
 type Props = {
   id: string
   title: string
-  tags: string[]
+  tags: TagLite[]
   folder?: string | null
   updatedAt: string
   pinned?: boolean
@@ -47,10 +49,13 @@ export default function NoteListRow({
         <div className="hidden sm:flex items-center gap-1">
           {tags.slice(0, 3).map((t) => (
             <span
-              key={t}
-              className="text-[10px] font-medium px-1.5 py-0.5 bg-accent/10 text-accent rounded border border-accent/15"
+              key={t.name}
+              style={tagChipStyle(t.color)}
+              className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
+                t.color ? '' : DEFAULT_TAG_CLASS
+              }`}
             >
-              {t}
+              {t.name}
             </span>
           ))}
           {tags.length > 3 && (

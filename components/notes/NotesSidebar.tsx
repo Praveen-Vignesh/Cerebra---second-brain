@@ -94,10 +94,6 @@ export default function NotesSidebar() {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }))
   }
 
-  async function handleNewNote() {
-    await createNote()
-  }
-
   function startSubfolder(parentId: string) {
     setCreatingFor(parentId)
     setNewName('')
@@ -139,17 +135,10 @@ export default function NotesSidebar() {
   return (
     <div className="flex h-full flex-col bg-sidebar">
 
-      <div className="flex h-14 shrink-0 items-center justify-between px-4 border-b border-sidebar-border">
+      <div className="flex h-14 shrink-0 items-center px-4 border-b border-sidebar-border">
         <span className="text-[13px] font-semibold text-sidebar-foreground tracking-tight">
           Notes
         </span>
-        <button
-          onClick={handleNewNote}
-          title="New note"
-          className="p-1.5 rounded-md text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
-        >
-          <Plus className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
@@ -168,14 +157,19 @@ export default function NotesSidebar() {
             <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Folders
             </span>
-            <button
-              onClick={startRootFolder}
-              title="New folder"
-              className="p-0.5 rounded text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
-            >
-              <Plus className="h-3 w-3" strokeWidth={2} />
-            </button>
+            <PlusMenu
+              title="New note or folder"
+              onNewNote={() => createNote()}
+              onNewFolder={startRootFolder}
+            />
           </div>
+
+          <SidebarLink
+            icon={<Folder className="h-3.5 w-3.5" strokeWidth={1.75} />}
+            label="Unorganised"
+            active={activeFolder === 'none'}
+            onClick={() => router.push('/notes?folder=none')}
+          />
 
           {loading ? (
             <p className="px-3 text-[11px] text-muted-foreground">Loading...</p>
@@ -359,16 +353,12 @@ function FolderItem({
           <span className="truncate">{node.name}</span>
         </button>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onAddSubfolder(node.id)
-          }}
-          title="Add subfolder"
-          className="opacity-0 group-hover:opacity-100 p-1 rounded text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all"
-        >
-          <Plus className="h-3 w-3" strokeWidth={2} />
-        </button>
+        <PlusMenu
+          title="New note or subfolder"
+          triggerClassName="opacity-0 group-hover:opacity-100 p-1 rounded text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all"
+          onNewNote={() => createNote(node.id)}
+          onNewFolder={() => onAddSubfolder(node.id)}
+        />
       </div>
 
       {showChildren && (
@@ -403,6 +393,90 @@ function FolderItem({
         </div>
       )}
     </div>
+  )
+}
+
+function PlusMenu({
+  onNewNote,
+  onNewFolder,
+  title,
+  triggerClassName,
+}: {
+  onNewNote: () => void
+  onNewFolder: () => void
+  title: string
+  triggerClassName?: string
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setOpen((v) => !v)
+        }}
+        title={title}
+        className={
+          triggerClassName ??
+          'p-0.5 rounded text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors'
+        }
+      >
+        <Plus className="h-3 w-3" strokeWidth={2} />
+      </button>
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen(false)
+            }}
+          />
+          <div className="absolute right-0 z-20 mt-1 min-w-32 bg-card border border-border rounded-lg shadow-lg p-1">
+            <PlusMenuItem
+              icon={<FileText className="h-3.5 w-3.5" strokeWidth={1.75} />}
+              label="New note"
+              onClick={() => {
+                setOpen(false)
+                onNewNote()
+              }}
+            />
+            <PlusMenuItem
+              icon={<Folder className="h-3.5 w-3.5" strokeWidth={1.75} />}
+              label="New folder"
+              onClick={() => {
+                setOpen(false)
+                onNewFolder()
+              }}
+            />
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function PlusMenuItem({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode
+  label: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick()
+      }}
+      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-md text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-left"
+    >
+      <span className="text-muted-foreground">{icon}</span>
+      {label}
+    </button>
   )
 }
 

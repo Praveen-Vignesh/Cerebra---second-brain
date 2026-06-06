@@ -12,7 +12,7 @@ type NoteRow = {
 	pinned: boolean;
 	folder_id: string | null;
 	folders: { name: string } | null;
-	note_tags: { tags: { id: string; name: string } | null }[];
+	note_tags: { tags: { id: string; name: string; color: string | null } | null }[];
 };
 
 export default async function NotesIndex({ searchParams }: { searchParams: SearchParams }) {
@@ -30,7 +30,7 @@ export default async function NotesIndex({ searchParams }: { searchParams: Searc
 			pinned,
 			folder_id,
 			folders ( name ),
-			note_tags ( tags ( id, name ) )
+			note_tags ( tags ( id, name, color ) )
 		`
 		)
 		.not('is_dump_chunk', 'is', true)
@@ -38,7 +38,8 @@ export default async function NotesIndex({ searchParams }: { searchParams: Searc
 		.is('deleted_at', null)
 		.order('updated_at', { ascending: false });
 
-	if (folder) query = query.eq('folder_id', folder);
+	if (folder === 'none') query = query.is('folder_id', null);
+	else if (folder) query = query.eq('folder_id', folder);
 
 	const { data, error } = await query;
 
@@ -59,8 +60,9 @@ export default async function NotesIndex({ searchParams }: { searchParams: Searc
 		folder_id: n.folder_id,
 		folder: n.folders?.name ?? null,
 		tags: n.note_tags
-			.map((nt) => nt.tags?.name)
-			.filter((name): name is string => Boolean(name)),
+			.map((nt) => nt.tags)
+			.filter((t): t is { id: string; name: string; color: string | null } => Boolean(t))
+			.map((t) => ({ name: t.name, color: t.color })),
 	}));
 
 	return <NotesPageClient notes={notes} createAction={createNote} />;
