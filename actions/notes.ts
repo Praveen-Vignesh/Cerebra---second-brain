@@ -220,6 +220,75 @@ export async function restoreNote(noteId: string): Promise<Result> {
 	return { ok: true };
 }
 
+export type NoteVersion = { id: string; created_at: string };
+
+// List a note's saved version snapshots, newest first. Snapshots are created by
+// the editor's Save button (saveNote(..., { createVersion: true })).
+export async function getNoteVersions(noteId: string): Promise<Result<NoteVersion[]>> {
+	const { supabase, user } = await requireUser();
+
+	// Confirm the note belongs to the caller (RLS also enforces this).
+	const { data: note } = await supabase
+		.from('notes')
+		.select('id')
+		.eq('id', noteId)
+		.eq('user_id', user.id)
+		.maybeSingle();
+	if (!note) return { ok: false, error: 'Note not found' };
+
+	const { data, error } = await supabase
+		.from('notes_version')
+		.select('id, created_at')
+		.eq('note_id', noteId)
+		.order('created_at', { ascending: false });
+
+	if (error) return { ok: false, error: error.message };
+	return { ok: true, data: (data ?? []) as NoteVersion[] };
+}
+
+// Roll a note back to an earlier snapshot. The note's current content is itself
+// snapshotted first, so a restore is reversible. Returns the restored content so
+// the editor can refresh in place.
+export async function restoreNoteVersion(
+	noteId: string,
+	versionId: string
+): Promise<Result<{ content: JSONContent }>> {
+	const { supabase, user } = await requireUser();
+
+	const { data: version, error: versionErr } = await supabase
+		.from('notes_version')
+		.select('content')
+		.eq('id', versionId)
+		.eq('note_id', noteId)
+		.maybeSingle<{ content: JSONContent }>();
+	if (versionErr) return { ok: false, error: versionErr.message };
+	if (!version) return { ok: false, error: 'Version not found' };
+
+	const { data: current } = await supabase
+		.from('notes')
+		.select('content')
+		.eq('id', noteId)
+		.eq('user_id', user.id)
+		.maybeSingle<{ content: JSONContent }>();
+	if (!current) return { ok: false, error: 'Note not found' };
+
+	// Snapshot the current content before overwriting it.
+	const { error: snapErr } = await supabase
+		.from('notes_version')
+		.insert({ note_id: noteId, content: current.content });
+	if (snapErr) return { ok: false, error: snapErr.message };
+
+	const { error: updateErr } = await supabase
+		.from('notes')
+		.update({ content: version.content, updated_at: new Date().toISOString() })
+		.eq('id', noteId)
+		.eq('user_id', user.id);
+	if (updateErr) return { ok: false, error: updateErr.message };
+
+	revalidatePath(`/notes/${noteId}`);
+	return { ok: true, data: { content: version.content } };
+}
+
 export async function permanentlyDeleteNote(noteId: string): Promise<Result> {
 	const { supabase, user } = await requireUser();
 

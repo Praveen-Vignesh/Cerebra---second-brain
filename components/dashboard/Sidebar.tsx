@@ -4,20 +4,15 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
 	LayoutDashboard,
 	FileText,
-	Share2,
-	Zap,
-	Layers,
-	FolderKanban,
-	Bookmark,
-	Mail,
+	GraduationCap,
 	Search,
 	LogOut,
+	Settings,
 	ChevronsLeft,
 	ChevronsRight,
 } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { logout } from '@/actions/auth';
-import ThemeToggle from './themeToggle';
 
 interface SidebarProps {
 	user: User | null;
@@ -31,12 +26,7 @@ interface SidebarProps {
 const navigation = [
 	{ name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
 	{ name: 'Notes', href: '/notes', icon: FileText },
-	{ name: 'Knowledge Base', href: '/graph', icon: Share2 },
-	{ name: 'Insta Dump', href: '/dump', icon: Zap },
-	{ name: 'Flashcards', href: '/flashcards', icon: Layers },
-	{ name: 'Projects', href: '/projects', icon: FolderKanban },
-	{ name: 'Resources', href: '/resources', icon: Bookmark },
-	{ name: 'Email', href: '/email', icon: Mail },
+	{ name: 'Study', href: '/study', icon: GraduationCap },
 ];
 
 function NavItem({
@@ -193,6 +183,14 @@ function SidebarContent({
 					)}
 				</div>
 				<button
+					onClick={() => onNavigate('/settings')}
+					title={collapsed ? 'Settings' : undefined}
+					className={`w-full flex items-center ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'} rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors text-xs ${collapsed ? '' : 'border-l-[2.5px] border-transparent'}`}
+				>
+					<Settings className="h-3.5 w-3.5 shrink-0" />
+					{!collapsed && <span>Settings</span>}
+				</button>
+				<button
 					onClick={onLogout}
 					title={collapsed ? 'Sign out' : undefined}
 					className={`w-full flex items-center ${collapsed ? 'justify-center px-0 py-2' : 'gap-3 px-3 py-2'} rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors text-xs ${collapsed ? '' : 'border-l-[2.5px] border-transparent'}`}
@@ -200,8 +198,6 @@ function SidebarContent({
 					<LogOut className="h-3.5 w-3.5 shrink-0" />
 					{!collapsed && <span>Sign out</span>}
 				</button>
-
-				<ThemeToggle />
 			</div>
 		</div>
 	);

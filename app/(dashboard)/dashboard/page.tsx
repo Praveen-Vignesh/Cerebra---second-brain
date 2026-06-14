@@ -1,150 +1,184 @@
-"use client"
+import Link from 'next/link'
+import { FileText, GraduationCap, ArrowRight, Layers, Flame } from 'lucide-react'
+import { createClient } from '@/utils/server'
+import { listStudySets } from '@/actions/flashcards'
+import { timeAgo } from '@/components/notes/timeAgo'
+import type { Metadata } from 'next'
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { FileText, Layers, FolderKanban } from "lucide-react"
-import InstaDump from "@/components/dashboard/InstaDump"
-import StatCard from "@/components/dashboard/StatCard"
-import NoteCard from "@/components/dashboard/NoteCard"
-import ProjectCard from "@/components/dashboard/ProjectCard"
+export const metadata: Metadata = { title: 'Dashboard' }
 
-export default function DashboardPage() {
-	const [greeting, setGreeting] = useState("")
-	const [userName, setUserName] = useState("Student")
+type RecentNote = { id: string; title: string | null; updated_at: string }
 
-	useEffect(() => {
-		const hour = new Date().getHours()
-		if (hour < 12) {
-			setGreeting("Good morning")
-		} else if (hour < 18) {
-			setGreeting("Good afternoon")
-		} else {
-			setGreeting("Good evening")
-		}
-	}, [])
+// Dashboard: a greeting, a few real stats, recent notes, and quick links.
+export default async function DashboardPage() {
+	const supabase = await createClient()
+	const {
+		data: { user },
+	} = await supabase.auth.getUser()
+	const name =
+		user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there'
 
-	const recentNotes = [
-		{
-			topic: "Machine Learning",
-			title: "Introduction to Neural Networks",
-			excerpt:
-				"Neural networks are computing systems inspired by biological neural networks that constitute animal brains...",
-			timestamp: "2 hours ago",
-		},
-		{
-			topic: "Web Development",
-			title: "React Hooks Best Practices",
-			excerpt:
-				"Hooks allow you to use state and other React features without writing a class component...",
-			timestamp: "5 hours ago",
-		},
-		{
-			topic: "Data Structures",
-			title: "Binary Search Trees Implementation",
-			excerpt:
-				"A binary search tree is a node-based binary tree data structure which has the following properties...",
-			timestamp: "1 day ago",
-		},
-		{
-			topic: "Algorithms",
-			title: "Dynamic Programming Patterns",
-			excerpt:
-				"Dynamic programming is a method for solving complex problems by breaking them down into simpler subproblems...",
-			timestamp: "2 days ago",
-		},
-	]
+	// Live notes only (not archived, not trashed).
+	const liveNotes = supabase
+		.from('notes')
+		.select('id', { count: 'exact', head: true })
+		.eq('user_id', user?.id ?? '')
+		.is('deleted_at', null)
+		.is('archived_at', null)
 
-	const activeProjects = [
-		{
-			name: "E-commerce Mobile App",
-			status: "Active",
-			techTags: ["React Native", "Node.js", "MongoDB"],
-			progress: 65,
-			lastActive: "3 hours ago",
-		},
-		{
-			name: "Data Visualization Dashboard",
-			status: "Planning",
-			techTags: ["D3.js", "Python", "PostgreSQL"],
-			progress: 25,
-			lastActive: "1 day ago",
-		},
-	]
+	const recentNotes = supabase
+		.from('notes')
+		.select('id, title, updated_at')
+		.eq('user_id', user?.id ?? '')
+		.is('deleted_at', null)
+		.is('archived_at', null)
+		.order('updated_at', { ascending: false })
+		.limit(5)
+
+	// Run the two note queries and the study-set summary in parallel.
+	const [{ count: noteCount }, { data: recent }, studyResult] = await Promise.all([
+		liveNotes,
+		recentNotes,
+		listStudySets(),
+	])
+
+	const setCount = studyResult.ok ? studyResult.data.sets.length : 0
+	const totalDue = studyResult.ok ? studyResult.data.totalDue : 0
 
 	return (
-		<div className="space-y-6">
-
+		<div className="space-y-8">
 			<div>
-				<h1 className="text-3xl font-bold text-foreground">
-					{greeting}, {userName}
-				</h1>
-				<p className="text-muted-foreground mt-1">
-					Your knowledge base is ready.
-				</p>
+				<h1 className="text-3xl font-bold text-foreground">Welcome back, {name}</h1>
+				<p className="mt-1 text-muted-foreground">Jump back into your second brain.</p>
 			</div>
 
-			<InstaDump />
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-				<StatCard
-					title="Notes this week"
-					value={12}
-					icon={<FileText className="h-5 w-5" />}
+			<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+				<Stat
+					icon={<FileText className="h-4 w-4" strokeWidth={1.75} />}
+					label="Notes"
+					value={noteCount ?? 0}
+					href="/notes"
 				/>
-				<StatCard
-					title="Flashcards due"
-					value={3}
-					icon={<Layers className="h-5 w-5" />}
+				<Stat
+					icon={<Layers className="h-4 w-4" strokeWidth={1.75} />}
+					label="Study sets"
+					value={setCount}
+					href="/study"
 				/>
-				<StatCard
-					title="Active projects"
-					value={2}
-					icon={<FolderKanban className="h-5 w-5" />}
-				/>
-				<StatCard
-					title="Resources saved"
-					value={28}
-					icon={<FileText className="h-5 w-5" />}
+				<Stat
+					icon={<Flame className="h-4 w-4" strokeWidth={1.75} />}
+					label="Due today"
+					value={totalDue}
+					href={totalDue > 0 ? '/study/review' : '/study'}
+					highlight={totalDue > 0}
 				/>
 			</div>
 
-			<div>
-				<div className="flex items-center justify-between mb-4">
-					<h2 className="text-xl font-semibold text-foreground">
-						Recent Notes
-					</h2>
-					<Link
-						href="/notes"
-						className="text-sm text-accent hover:text-accent/80 transition-colors"
-					>
-						View all →
-					</Link>
+			{recent && recent.length > 0 && (
+				<div>
+					<div className="mb-2 flex items-center justify-between">
+						<h2 className="text-sm font-semibold text-foreground">Recent notes</h2>
+						<Link
+							href="/notes"
+							className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+						>
+							View all
+						</Link>
+					</div>
+					<div className="divide-y divide-border rounded-xl border border-border bg-card">
+						{(recent as RecentNote[]).map((note) => (
+							<Link
+								key={note.id}
+								href={`/notes/${note.id}`}
+								className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-accent/5"
+							>
+								<span className="min-w-0 flex-1 truncate text-sm text-foreground">
+									{note.title || 'Untitled'}
+								</span>
+								<span className="shrink-0 text-xs text-muted-foreground">
+									{timeAgo(note.updated_at)}
+								</span>
+							</Link>
+						))}
+					</div>
 				</div>
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-					{recentNotes.map((note, index) => (
-						<NoteCard key={index} {...note} />
-					))}
-				</div>
-			</div>
+			)}
 
-			<div>
-				<div className="flex items-center justify-between mb-4">
-					<h2 className="text-xl font-semibold text-foreground">
-						Active Projects
-					</h2>
-					<Link
-						href="/projects"
-						className="text-sm text-accent hover:text-accent/80 transition-colors"
-					>
-						View all →
-					</Link>
-				</div>
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-					{activeProjects.map((project, index) => (
-						<ProjectCard key={index} {...project} />
-					))}
-				</div>
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<QuickLink
+					href="/notes"
+					icon={<FileText className="h-5 w-5" strokeWidth={1.75} />}
+					title="Notes"
+					description="Capture and organize what you know."
+				/>
+				<QuickLink
+					href="/study"
+					icon={<GraduationCap className="h-5 w-5" strokeWidth={1.75} />}
+					title="Study"
+					description="Turn your notes into flashcards, quizzes, and spaced review."
+				/>
 			</div>
 		</div>
+	)
+}
+
+function Stat({
+	icon,
+	label,
+	value,
+	href,
+	highlight,
+}: {
+	icon: React.ReactNode
+	label: string
+	value: number
+	href: string
+	highlight?: boolean
+}) {
+	return (
+		<Link
+			href={href}
+			className={`rounded-xl border bg-card p-4 transition-colors hover:border-accent/30 ${
+				highlight ? 'border-accent/40' : 'border-border'
+			}`}
+		>
+			<div className="flex items-center gap-1.5 text-muted-foreground">
+				<span className={highlight ? 'text-accent' : ''}>{icon}</span>
+				<span className="text-xs">{label}</span>
+			</div>
+			<div className={`mt-1 text-2xl font-bold ${highlight ? 'text-accent' : 'text-foreground'}`}>
+				{value}
+			</div>
+		</Link>
+	)
+}
+
+function QuickLink({
+	href,
+	icon,
+	title,
+	description,
+}: {
+	href: string
+	icon: React.ReactNode
+	title: string
+	description: string
+}) {
+	return (
+		<Link
+			href={href}
+			className="group flex items-start gap-4 rounded-xl border border-border bg-card p-5 transition-colors hover:border-accent/30"
+		>
+			<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+				{icon}
+			</div>
+			<div className="min-w-0 flex-1">
+				<div className="flex items-center gap-1.5">
+					<h2 className="text-sm font-semibold text-foreground">{title}</h2>
+					<ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+				</div>
+				<p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+			</div>
+		</Link>
 	)
 }

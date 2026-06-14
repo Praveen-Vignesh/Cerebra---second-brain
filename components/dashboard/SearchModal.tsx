@@ -1,53 +1,96 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { Search, FileText, FolderKanban, Bookmark, ArrowRight } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Search, FileText } from 'lucide-react'
+import { searchNotes, type SearchResult } from '@/actions/search'
 
 interface SearchModalProps {
   isOpen: boolean
   onClose: () => void
 }
 
-const placeholderResults = [
-  {
-    id: 1,
-    title: 'Machine Learning Fundamentals',
-    type: 'Note',
-    snippet: 'Supervised learning involves training a model on labeled data...',
-    icon: FileText,
-  },
-  {
-    id: 2,
-    title: 'React Native Mobile App',
-    type: 'Project',
-    snippet: 'Building a cross-platform mobile application using React Native...',
-    icon: FolderKanban,
-  },
-  {
-    id: 3,
-    title: 'Deep Learning Papers Collection',
-    type: 'Resource',
-    snippet: 'Curated list of important papers in deep learning research...',
-    icon: Bookmark,
-  },
-]
-
-const typeColors: Record<string, string> = {
-  Note:     'text-accent bg-accent/8 border-accent/15',
-  Project:  'text-blue-600 bg-blue-500/8 border-blue-500/15 dark:text-blue-400',
-  Resource: 'text-emerald-600 bg-emerald-500/8 border-emerald-500/15 dark:text-emerald-400',
-}
-
+// Cmd+K search. Debounces the query, runs searchNotes on the server, and lets you
+// move through results with ↑/↓ and open one with Enter.
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
+  const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [loading, setLoading] = useState(false)
+  const [active, setActive] = useState(0)
+
+  // Focus the input whenever the modal opens.
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus()
-    }
+    if (isOpen) inputRef.current?.focus()
   }, [isOpen])
 
+  // Reset everything when the modal closes. Done during render (not in an effect)
+  // to avoid synchronous setState in an effect body.
+  const [wasOpen, setWasOpen] = useState(isOpen)
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen)
+    if (!isOpen) {
+      setQuery('')
+      setResults([])
+      setLoading(false)
+      setActive(0)
+    }
+  }
+
+  // Debounced search. Everything runs inside the timeout callback (never
+  // synchronously in the effect body). A stale guard keeps an earlier slow
+  // response from overwriting the results of a later query.
+  useEffect(() => {
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      const q = query.trim()
+      if (q === '') {
+        setResults([])
+        setLoading(false)
+        return
+      }
+      const res = await searchNotes(q)
+      if (cancelled) return
+      setResults(res.ok ? res.data : [])
+      setActive(0)
+      setLoading(false)
+    }, 200)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [query])
+
+  function select(result: SearchResult) {
+    onClose()
+    router.push(`/notes/${result.id}`)
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Escape') {
+      onClose()
+      return
+    }
+    if (results.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActive((i) => (i + 1) % results.length)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActive((i) => (i - 1 + results.length) % results.length)
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      const chosen = results[active]
+      if (chosen) select(chosen)
+    }
+  }
+
   if (!isOpen) return null
+
+  const q = query.trim()
 
   return (
     <div className="fixed inset-0 z-50">
@@ -65,59 +108,57 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <input
               ref={inputRef}
               type="text"
-              placeholder="Search notes, projects, resources..."
+              value={query}
+              onChange={(e) => {
+                const v = e.target.value
+                setQuery(v)
+                setLoading(v.trim() !== '')
+              }}
+              onKeyDown={onKeyDown}
+              placeholder="Search your notes..."
               className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder-muted-foreground"
-              onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}
             />
             <kbd className="text-[10px] font-mono bg-background border border-border rounded px-1.5 py-0.5 text-muted-foreground">
               ESC
             </kbd>
           </div>
 
-          <div className="max-h-80 overflow-y-auto py-1">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-4 py-2">
-              Recent
-            </p>
-            {placeholderResults.map((result) => (
-              <button
-                key={result.id}
-                className="w-full flex items-start gap-3 px-4 py-3 hover:bg-sidebar-accent transition-colors group text-left"
-              >
-                <div className="p-1.5 rounded-md bg-background border border-border text-muted-foreground group-hover:text-foreground transition-colors shrink-0">
-                  <result.icon className="h-3.5 w-3.5" strokeWidth={1.75} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-sm font-medium text-foreground truncate">
-                      {result.title}
+          {q === '' ? (
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm text-muted-foreground">Search your notes by title or content.</p>
+            </div>
+          ) : loading ? (
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm text-muted-foreground">Searching…</p>
+            </div>
+          ) : results.length === 0 ? (
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm text-muted-foreground">No notes match &ldquo;{q}&rdquo;.</p>
+            </div>
+          ) : (
+            <ul className="max-h-80 overflow-y-auto p-2">
+              {results.map((r, i) => (
+                <li key={r.id}>
+                  <button
+                    type="button"
+                    onClick={() => select(r)}
+                    onMouseEnter={() => setActive(i)}
+                    className={`w-full flex items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
+                      i === active ? 'bg-sidebar-accent' : 'hover:bg-sidebar-accent/60'
+                    }`}
+                  >
+                    <FileText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.75} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-foreground">{r.title}</span>
+                      {r.snippet && (
+                        <span className="mt-0.5 block truncate text-xs text-muted-foreground">{r.snippet}</span>
+                      )}
                     </span>
-                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${typeColors[result.type] ?? ''}`}>
-                      {result.type}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-1">
-                    {result.snippet}
-                  </p>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 shrink-0" />
-              </button>
-            ))}
-          </div>
-
-          <div className="border-t border-border px-4 py-2.5 flex items-center gap-4 text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <kbd className="font-mono bg-background border border-border rounded px-1 py-0.5">↵</kbd>
-              open
-            </span>
-            <span className="flex items-center gap-1">
-              <kbd className="font-mono bg-background border border-border rounded px-1 py-0.5">↑↓</kbd>
-              navigate
-            </span>
-            <span className="flex items-center gap-1 ml-auto">
-              <kbd className="font-mono bg-background border border-border rounded px-1 py-0.5">ESC</kbd>
-              close
-            </span>
-          </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

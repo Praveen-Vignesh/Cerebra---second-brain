@@ -18,6 +18,7 @@ export type TagLite = { name: string; color: string | null }
 export type NoteListItem = {
   id: string
   title: string
+  excerpt: string
   updated_at: string
   created_at: string
   pinned: boolean
@@ -85,9 +86,6 @@ export default function NotesPageClient({ notes, createAction }: Props) {
   notes.forEach((n) => n.tags.forEach((t) => { tagColors[t.name] = t.color }))
   const allTags = Object.keys(tagColors).sort()
 
-  const placeholderExcerpt =
-    'Preview of the note body would appear here, truncated to roughly two lines so similar titles are distinguishable.'
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-6">
       <header className="flex items-center justify-between mb-5">
@@ -129,7 +127,6 @@ export default function NotesPageClient({ notes, createAction }: Props) {
               </div>
               <NoteGrid
                 view={view}
-                excerpt={placeholderExcerpt}
                 notes={pinned}
                 onPinToggle={handlePinToggle}
                 onDelete={setConfirmingId}
@@ -145,7 +142,6 @@ export default function NotesPageClient({ notes, createAction }: Props) {
             )}
             <NoteGrid
               view={view}
-              excerpt={placeholderExcerpt}
               notes={rest}
               onPinToggle={handlePinToggle}
               onDelete={setConfirmingId}
@@ -200,13 +196,11 @@ function compareBy(sort: SortKey) {
 
 function NoteGrid({
   view,
-  excerpt,
   notes,
   onPinToggle,
   onDelete,
 }: {
   view: ViewMode
-  excerpt: string
   notes: NoteListItem[]
   onPinToggle: (id: string) => void
   onDelete: (id: string) => void
@@ -242,7 +236,7 @@ function NoteGrid({
           title={n.title}
           tags={n.tags}
           folder={n.folder}
-          excerpt={excerpt}
+          excerpt={n.excerpt}
           updatedAt={n.updated_at}
           pinned={n.pinned}
           onPinToggle={onPinToggle}

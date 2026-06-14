@@ -1,59 +1,45 @@
-'use client'
+import type { Metadata } from 'next'
+import { BookOpen, Layers, Sparkles, KeyRound } from 'lucide-react'
+import RedirectIfAuthed from '@/components/RedirectIfAuthed'
 
-import { useEffect } from 'react'
-import { createClient } from '@/utils/client'
-import { useRouter } from 'next/navigation'
-import { BookOpen, Zap, Share2, Layers, FolderKanban, BarChart2 } from 'lucide-react'
+export const metadata: Metadata = {
+  title: 'Cerebra — your second brain for studying',
+  description:
+    'Capture rich notes, organize them with folders and tags, and turn them into AI flashcards, quizzes, and study guides with spaced review.',
+  alternates: { canonical: '/' },
+}
+
+const features = [
+  {
+    icon: BookOpen,
+    title: 'Notes',
+    description:
+      'A rich editor with images, tables, and code. Organize with nested folders and tags; pin, archive, and trash.'
+  },
+  {
+    icon: Layers,
+    title: 'Study',
+    description:
+      'Turn any note into AI flashcards, quizzes, and study guides — then review them on a spaced-repetition schedule.'
+  },
+  {
+    icon: Sparkles,
+    title: 'AI Analyze',
+    description:
+      'Get knowledge gaps, suggested improvements, and self-test questions for whatever you’re writing.'
+  },
+  {
+    icon: KeyRound,
+    title: 'Bring your own AI key',
+    description:
+      'Use the built-in model or plug in your own Gemini, OpenAI, or Claude key. Your key is encrypted at rest.'
+  }
+]
 
 export default function LandingPage() {
-  const router = useRouter()
-  const supabase = createClient()
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        router.push('/dashboard')
-      }
-    }
-    checkUser()
-  }, [router, supabase])
-
-  const features = [
-    {
-      icon: BookOpen,
-      title: 'Notes Engine',
-      description: 'Write, organize, and connect notes across courses and topics.'
-    },
-    {
-      icon: Zap,
-      title: 'Insta Dump',
-      description: 'Capture anything instantly. AI organizes it for you.'
-    },
-    {
-      icon: Share2,
-      title: 'Graph View',
-      description: 'See how your knowledge connects visually.'
-    },
-    {
-      icon: Layers,
-      title: 'Flashcards',
-      description: 'AI-generated cards with spaced repetition built in.'
-    },
-    {
-      icon: FolderKanban,
-      title: 'Project Tracker',
-      description: 'Link your projects to your knowledge base.'
-    },
-    {
-      icon: BarChart2,
-      title: 'Gap Analysis',
-      description: 'Find what you need to learn before you build.'
-    }
-  ]
-
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <RedirectIfAuthed />
 
       <section className="px-4 py-20 md:py-32">
         <div className="max-w-6xl mx-auto text-center">
@@ -74,7 +60,7 @@ export default function LandingPage() {
             Your Knowledge, Connected.
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Cerebra is a personal knowledge OS for students. Capture notes, track projects, and let AI surface what you&apos;re missing.
+            Cerebra is a personal knowledge OS for students. Capture rich notes, organize them, and let AI turn them into study material.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -96,7 +82,7 @@ export default function LandingPage() {
 
       <section className="px-4 py-20 bg-card/50">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <div
                 key={index}
@@ -120,7 +106,7 @@ export default function LandingPage() {
             <a href="/login" className="text-muted-foreground hover:text-foreground transition-colors">
               Sign in
             </a>
-            <a href="/signup" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="/login" className="text-muted-foreground hover:text-foreground transition-colors">
               Get started
             </a>
           </div>

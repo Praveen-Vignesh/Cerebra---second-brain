@@ -1,12 +1,18 @@
+import type { JSONContent } from '@tiptap/react';
 import { createClient } from '@/utils/server';
 import { createNote } from '@/actions/notes';
+import { noteToPlainText } from '@/utils/tiptapText';
 import NotesPageClient, { type NoteListItem } from '@/components/notes/NotesPageClient';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Notes' };
 
 type SearchParams = Promise<{ folder?: string; tag?: string }>;
 
 type NoteRow = {
 	id: string;
 	title: string;
+	content: JSONContent;
 	updated_at: string;
 	created_at: string;
 	pinned: boolean;
@@ -25,6 +31,7 @@ export default async function NotesIndex({ searchParams }: { searchParams: Searc
 			`
 			id,
 			title,
+			content,
 			updated_at,
 			created_at,
 			pinned,
@@ -54,6 +61,8 @@ export default async function NotesIndex({ searchParams }: { searchParams: Searc
 	const notes: NoteListItem[] = filtered.map((n) => ({
 		id: n.id,
 		title: n.title,
+		// A real two-line preview of the note body (first ~160 chars of its text).
+		excerpt: noteToPlainText(n.content).slice(0, 160),
 		updated_at: n.updated_at,
 		created_at: n.created_at,
 		pinned: n.pinned,

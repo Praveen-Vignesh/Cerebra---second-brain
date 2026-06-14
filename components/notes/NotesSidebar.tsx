@@ -10,10 +10,13 @@ import {
   ChevronRight,
   Archive,
   Trash2,
+  MoreHorizontal,
+  FolderX,
 } from 'lucide-react'
 import { createClient } from '@/utils/client'
 import { createNote } from '@/actions/notes'
-import { createFolder } from '@/actions/folders'
+import { createFolder, deleteFolder, type DeleteFolderMode } from '@/actions/folders'
+import { useToast } from '@/components/ui/Toast'
 
 type FolderRow = { id: string; name: string; parent_id: string | null }
 
@@ -40,10 +43,28 @@ function buildFolderTree(rows: FolderRow[]): FolderNode[] {
   return roots
 }
 
+// A folder + all of its nested subfolder ids (so we can drop them from local
+// state after a recursive delete).
+function collectFolderIds(rows: FolderRow[], rootId: string): string[] {
+  const ids = [rootId]
+  const stack = [rootId]
+  while (stack.length > 0) {
+    const id = stack.pop() as string
+    for (const r of rows) {
+      if (r.parent_id === id) {
+        ids.push(r.id)
+        stack.push(r.id)
+      }
+    }
+  }
+  return ids
+}
+
 export default function NotesSidebar() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const toast = useToast()
 
   const [folders, setFolders] = useState<FolderRow[]>([])
   const [trashCount, setTrashCount] = useState(0)
@@ -53,6 +74,9 @@ export default function NotesSidebar() {
 
   const [creatingFor, setCreatingFor] = useState<string | 'root' | null>(null)
   const [newName, setNewName] = useState('')
+
+  // The folder pending deletion (shows the options dialog), or null.
+  const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -132,6 +156,23 @@ export default function NotesSidebar() {
     cancelCreate()
   }
 
+  async function handleDeleteFolder(mode: DeleteFolderMode) {
+    if (!deleting) return
+    const removedIds = collectFolderIds(folders, deleting.id)
+    const res = await deleteFolder(deleting.id, mode)
+    setDeleting(null)
+    if (!res.ok) {
+      console.error('deleteFolder failed:', res.error)
+      toast.error("Couldn't delete that folder. Please try again.")
+      return
+    }
+    // Drop the deleted folder + subfolders from the tree locally.
+    setFolders((prev) => prev.filter((f) => !removedIds.includes(f.id)))
+    // If we were viewing one of the deleted folders, go back to All notes.
+    if (activeFolder && removedIds.includes(activeFolder)) router.push('/notes')
+    router.refresh()
+  }
+
   return (
     <div className="flex h-full flex-col bg-sidebar">
 
@@ -192,6 +233,7 @@ export default function NotesSidebar() {
                   onToggleExpand={toggleExpanded}
                   onSelect={(id) => router.push(`/notes?folder=${id}`)}
                   onAddSubfolder={startSubfolder}
+                  onRequestDelete={(id, name) => setDeleting({ id, name })}
                 />
               ))}
 
@@ -230,6 +272,14 @@ export default function NotesSidebar() {
           />
         </div>
       </div>
+
+      {deleting && (
+        <DeleteFolderDialog
+          folder={deleting}
+          onCancel={() => setDeleting(null)}
+          onConfirm={handleDeleteFolder}
+        />
+      )}
     </div>
   )
 }
@@ -287,6 +337,7 @@ function FolderItem({
   onToggleExpand,
   onSelect,
   onAddSubfolder,
+  onRequestDelete,
 }: {
   node: FolderNode
   depth: number
@@ -300,6 +351,7 @@ function FolderItem({
   onToggleExpand: (id: string) => void
   onSelect: (id: string) => void
   onAddSubfolder: (parentId: string) => void
+  onRequestDelete: (id: string, name: string) => void
 }) {
   const hasChildren = node.children.length > 0
   const isOpen = !!expanded[node.id]
@@ -359,6 +411,7 @@ function FolderItem({
           onNewNote={() => createNote(node.id)}
           onNewFolder={() => onAddSubfolder(node.id)}
         />
+        <FolderMenu onDelete={() => onRequestDelete(node.id, node.name)} />
       </div>
 
       {showChildren && (
@@ -379,6 +432,7 @@ function FolderItem({
                 onToggleExpand={onToggleExpand}
                 onSelect={onSelect}
                 onAddSubfolder={onAddSubfolder}
+                onRequestDelete={onRequestDelete}
               />
             ))}
           {creatingFor === node.id && (
@@ -517,5 +571,146 @@ function NewFolderInput({
         className="flex-1 bg-transparent outline-none text-xs py-1.5 text-sidebar-foreground placeholder:text-muted-foreground min-w-0"
       />
     </div>
+  )
+}
+
+// The "⋯" menu on a folder row — just a Delete entry for now.
+function FolderMenu({ onDelete }: { onDelete: () => void }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setOpen((v) => !v)
+        }}
+        title="Folder options"
+        className="opacity-0 group-hover:opacity-100 p-1 rounded text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all"
+      >
+        <MoreHorizontal className="h-3 w-3" strokeWidth={2} />
+      </button>
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 z-10"
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen(false)
+            }}
+          />
+          <div className="absolute right-0 z-20 mt-1 min-w-36 bg-card border border-border rounded-lg shadow-lg p-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setOpen(false)
+                onDelete()
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-md text-red-500 hover:bg-red-500/10 transition-colors text-left"
+            >
+              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+              Delete folder
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// Confirm dialog with the three "what happens to the notes" choices. Ordered
+// safest-first; the destructive (Trash) option is last and red.
+function DeleteFolderDialog({
+  folder,
+  onCancel,
+  onConfirm,
+}: {
+  folder: { id: string; name: string }
+  onCancel: () => void
+  onConfirm: (mode: DeleteFolderMode) => void | Promise<void>
+}) {
+  const [busy, setBusy] = useState(false)
+
+  const run = (mode: DeleteFolderMode) => async () => {
+    setBusy(true)
+    await onConfirm(mode)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/40" onClick={busy ? undefined : onCancel} />
+      <div className="relative w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-500">
+            <FolderX className="h-4 w-4" strokeWidth={1.75} />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">Delete &ldquo;{folder.name}&rdquo;?</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Any subfolders are deleted too. Choose what happens to the notes inside.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <OptionRow
+            title="Keep the notes"
+            desc="Move them to Unorganised."
+            onClick={run('unorganise')}
+            disabled={busy}
+          />
+          <OptionRow
+            title="Archive the notes"
+            desc="Move them to the Archive."
+            onClick={run('archive')}
+            disabled={busy}
+          />
+          <OptionRow
+            title="Move notes to Trash"
+            desc="Recoverable for 7 days, then auto-deleted."
+            danger
+            onClick={run('trash')}
+            disabled={busy}
+          />
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={onCancel}
+            disabled={busy}
+            className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function OptionRow({
+  title,
+  desc,
+  onClick,
+  danger,
+  disabled,
+}: {
+  title: string
+  desc: string
+  onClick: () => void
+  danger?: boolean
+  disabled?: boolean
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`w-full rounded-lg border p-3 text-left transition-colors disabled:opacity-50 ${
+        danger ? 'border-red-500/30 hover:bg-red-500/10' : 'border-border hover:bg-sidebar-accent'
+      }`}
+    >
+      <p className={`text-sm font-medium ${danger ? 'text-red-500' : 'text-foreground'}`}>{title}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
+    </button>
   )
 }

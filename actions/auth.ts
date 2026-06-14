@@ -3,7 +3,6 @@
 import { createClient } from "@/utils/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { getOrigin } from "./getOrigin";
 
 export type AuthResponse = { error: string | null }

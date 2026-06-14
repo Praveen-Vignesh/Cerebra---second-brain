@@ -2,14 +2,8 @@
 
 import React, { useState } from 'react';
 import { Editor, type JSONContent } from '@tiptap/react';
-import { Image, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react';
+import { Image as ImageIcon, Paperclip, SendHorizonal, Sparkles, Table } from 'lucide-react';
 import { uploadAttachment } from '@/utils/upload';
-
-type ToolButton = {
-	icon: React.ReactNode;
-	label: string;
-	action: () => void;
-};
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -90,7 +84,7 @@ const Bottombar = ({
 	const handleAiAnalyze = async () => {
 		setaiLoading(true);
 		try {
-			await onAiAnalysis?.(editor.getHTML());
+			await onAiAnalysis?.(editor.getText());
 		} finally {
 			setaiLoading(false);
 		}
@@ -99,24 +93,6 @@ const Bottombar = ({
 	const handleTable = () => {
 		editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
 	};
-
-	const leftTools: ToolButton[] = [
-		{
-			icon: <Image width={16} />,
-			label: 'Insert image',
-			action: () => imageref.current?.click(),
-		},
-		{
-			icon: <Paperclip size={16} />,
-			label: 'Attach file',
-			action: () => fileref.current?.click(),
-		},
-		{
-			icon: <Table size={16} />,
-			label: 'Insert table',
-			action: handleTable,
-		},
-	];
 
 	return (
 		<div className="cerebra-bottombar">
@@ -140,18 +116,33 @@ const Bottombar = ({
 
 
 			<div className="cerebra-bottombar-cluster">
-				{leftTools.map((tool) => (
-					<button
-						key={tool.label}
-						type="button"
-						title={uploading ? 'Uploading…' : tool.label}
-						onClick={tool.action}
-						disabled={uploading}
-						className="cerebra-bottombar-btn"
-					>
-						{tool.icon}
-					</button>
-				))}
+				<button
+					type="button"
+					title={uploading ? 'Uploading…' : 'Insert image'}
+					onClick={() => imageref.current?.click()}
+					disabled={uploading}
+					className="cerebra-bottombar-btn"
+				>
+					<ImageIcon width={16} />
+				</button>
+				<button
+					type="button"
+					title={uploading ? 'Uploading…' : 'Attach file'}
+					onClick={() => fileref.current?.click()}
+					disabled={uploading}
+					className="cerebra-bottombar-btn"
+				>
+					<Paperclip size={16} />
+				</button>
+				<button
+					type="button"
+					title="Insert table"
+					onClick={handleTable}
+					disabled={uploading}
+					className="cerebra-bottombar-btn"
+				>
+					<Table size={16} />
+				</button>
 			</div>
 
 

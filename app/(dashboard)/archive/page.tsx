@@ -1,5 +1,8 @@
 import { createClient } from '@/utils/server';
 import ArchivePageClient, { type ArchivedNote } from '@/components/notes/ArchivePageClient';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Archive' };
 
 export default async function ArchivePage() {
 	const supabase = await createClient();

@@ -2,6 +2,23 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/utils/server';
 import NoteEditor from '@/components/notes/NoteEditor';
 import type { JSONContent } from '@tiptap/react';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+	const { id } = await params;
+	const supabase = await createClient();
+	const { data } = await supabase
+		.from('notes')
+		.select('title')
+		.eq('id', id)
+		.maybeSingle();
+	const title = data?.title?.trim();
+	return { title: title && title.length > 0 ? title : 'Untitled note' };
+}
 
 type NoteRow = {
 	id: string;
@@ -14,7 +31,7 @@ type NoteRow = {
 	note_tags: { tags: { id: string; name: string; color: string | null } | null }[];
 };
 
-type FolderRow = { id: string; name: string };
+type FolderRow = { id: string; name: string; parent_id: string | null };
 type TagRow = { id: string; name: string; color: string | null };
 
 export default async function NotePage({ params }: { params: Promise<{ id: string }> }) {
@@ -45,7 +62,7 @@ export default async function NotePage({ params }: { params: Promise<{ id: strin
 
 	const { data: foldersRaw } = await supabase
 		.from('folders')
-		.select('id, name')
+		.select('id, name, parent_id')
 		.order('name');
 	const folders = (foldersRaw ?? []) as FolderRow[];
 

@@ -8,6 +8,7 @@ import Sidebar from "@/components/dashboard/Sidebar"
 import TopBar from "@/components/dashboard/TopBar"
 import SearchModal from "@/components/dashboard/SearchModal"
 import NotesSidebar from "@/components/notes/NotesSidebar"
+import { ToastProvider } from "@/components/ui/Toast"
 
 const NOTES_ROUTES = ["/notes", "/archive", "/trash"]
 
@@ -38,10 +39,14 @@ export default function DashboardLayout({
 
 	const supabase = createClient()
 
-	useEffect(() => {
-
+	// Reset the main sidebar's collapsed state when you cross into/out of the
+	// notes context. Adjusting state during render (not in an effect) per
+	// https://react.dev/learn/you-might-not-need-an-effect.
+	const [prevNotesContext, setPrevNotesContext] = useState(inNotesContext)
+	if (prevNotesContext !== inNotesContext) {
+		setPrevNotesContext(inNotesContext)
 		setMainCollapsed(inNotesContext)
-	}, [inNotesContext])
+	}
 
 	useEffect(() => {
 		const mq = window.matchMedia("(min-width: 1024px)")
@@ -96,7 +101,7 @@ export default function DashboardLayout({
 	if (loading) {
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center">
-				<div className="text-foreground">Loading...</div>
+				<div className="h-7 w-7 rounded-full border-2 border-border border-t-accent animate-spin" />
 			</div>
 		)
 	}
@@ -108,6 +113,7 @@ export default function DashboardLayout({
 	const toggleMain = () => setMainCollapsed((v) => !v)
 
 	return (
+		<ToastProvider>
 		<div className="min-h-screen bg-background">
 
 			{sidebarOpen && (
@@ -136,7 +142,6 @@ export default function DashboardLayout({
 			)}
 
 			<TopBar
-				user={user}
 				onMenuClick={() => setSidebarOpen(true)}
 				onSearchClick={() => setSearchModalOpen(true)}
 			/>
@@ -153,5 +158,6 @@ export default function DashboardLayout({
 				onClose={() => setSearchModalOpen(false)}
 			/>
 		</div>
+		</ToastProvider>
 	)
 }

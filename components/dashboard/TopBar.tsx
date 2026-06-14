@@ -3,12 +3,11 @@
 import { Menu, Search } from 'lucide-react'
 
 interface TopBarProps {
-  user: any
   onMenuClick: () => void
   onSearchClick: () => void
 }
 
-export default function TopBar({ user, onMenuClick, onSearchClick }: TopBarProps) {
+export default function TopBar({ onMenuClick, onSearchClick }: TopBarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-sm border-b border-border lg:hidden">
       <div className="flex h-14 items-center justify-between px-4">
